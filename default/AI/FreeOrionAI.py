@@ -23,6 +23,11 @@ import ResourcesAI
 from freeorion_tools import UserString, chat_on_error, print_error
 from freeorion_debug import Timer
 
+import os
+import sys
+sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'inspect_interface'))
+from interface_inspector import inspect
+
 main_timer = Timer('timer', write_log=True)
 turn_timer = Timer('bucket', write_log=True)
 
@@ -155,6 +160,70 @@ def handleDiplomaticStatusUpdate(statusUpdate): # pylint: disable=invalid-name
 @chat_on_error
 def generateOrders(): # pylint: disable=invalid-name
     """called by client to get the AI's orders for the turn"""
+
+    capital_id = PlanetUtilsAI.get_capital()
+
+    u = fo.getUniverse()
+    fleets_int_vector = u.fleetIDs
+    fleet = u.getFleet(list(fleets_int_vector)[0])
+    ship = u.getShip(list(u.shipIDs)[0])
+    design = fo.getShipDesign(ship.designID)
+    empire = fo.getEmpire()
+
+    tech = fo.getTech('SHP_WEAPON_1_3')
+    tech_spec = list(tech.unlockedItems)[0]
+
+    part_id = list(empire.availableShipParts)[0]
+    part_type = fo.getPartType(part_id)
+
+    prod_queue = empire.productionQueue
+    fo.issueEnqueueShipProductionOrder(list(empire.availableShipDesigns)[0], capital_id)
+
+    research_queue = empire.researchQueue
+
+    fo.issueEnqueueTechOrder('SHP_WEAPON_1_2', -1)
+
+    planet = u.getPlanet(capital_id)
+
+    building = list(planet.buildingIDs)[0]
+
+    inspect(
+        fo,
+        u,
+        fleet,
+        planet,
+        u.getSystem(planet.systemID),
+        ship,
+        empire,
+        design,
+        tech,
+        tech_spec,
+        fo.getFieldType('FLD_ION_STORM'),
+        fo.getBuildingType('BLD_SHIPYARD_BASE'),
+        fo.getGalaxySetupData(),
+        fo.getHullType('SH_XENTRONIUM'),
+        fo.getPartType('SR_WEAPON_1_1'),
+        fo.getSpecial('MODERATE_TECH_NATIVES_SPECIAL'),
+        fo.getSpecies('SP_ABADDONI'),
+        fo.getTech('SHP_WEAPON_4_1'),
+        fo.diplomaticMessage(1, 2, fo.diplomaticMessageType.acceptProposal),
+        fleets_int_vector,
+        part_type,
+        prod_queue,
+        prod_queue.allocatedPP,
+        prod_queue[0],
+        research_queue,
+        research_queue[0],
+        empire.getSitRep(0),
+        u.getBuilding(building),
+    )
+    exit(1)
+    '''
+
+    getSpecies string species
+     string tech
+      universe'''
+
     turn_timer.start("AI planning")
     universe = fo.getUniverse()
     empire = fo.getEmpire()
@@ -197,6 +266,8 @@ def generateOrders(): # pylint: disable=invalid-name
     # ...demands/priorities
     print("Calling AI Modules")
     # call AI modules
+
+
     action_list = [PriorityAI.calculate_priorities,
                    ExplorationAI.assign_scouts_to_explore_systems,
                    ColonisationAI.assign_colony_fleets_to_colonise,
