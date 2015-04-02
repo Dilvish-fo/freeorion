@@ -1013,9 +1013,9 @@ namespace {
         general_type = UserString("ENC_SHIP_HULL");
 
         detailed_description += UserString(hull->Description()) + "\n\n" + str(FlexibleFormat(UserString("HULL_DESC"))
-            % hull->StarlaneSpeed()
+            % hull->Speed()
             % hull->Fuel()
-            % hull->BattleSpeed()
+            % hull->Speed()
             % hull->Structure());
 
         std::vector<std::string> unlocked_by_techs = TechsThatUnlockItem(ItemSpec(UIT_SHIP_HULL, item_name));
@@ -1755,7 +1755,6 @@ namespace {
         float shield = ship->CurrentMeterValue(METER_MAX_SHIELD);
         float attack = ship->TotalWeaponsDamage();
         float strength = std::pow(attack * structure, 0.6f);
-        float tech_level = boost::algorithm::clamp(CurrentTurn() / 400.0f, 0.0f, 1.0f);
         float typical_shot = *std::max_element(enemy_shots.begin(), enemy_shots.end());
         float typical_strength = std::pow(ship->TotalWeaponsDamage(enemy_DR) * structure * typical_shot / std::max(typical_shot - shield, 0.001f), 0.6f);
         return (FlexibleFormat(UserString("ENC_SHIP_DESIGN_DESCRIPTION_STATS_STR"))
@@ -1770,8 +1769,8 @@ namespace {
             % ship->CurrentMeterValue(METER_MAX_SHIELD)
             % ship->CurrentMeterValue(METER_DETECTION)
             % ship->CurrentMeterValue(METER_STEALTH)
-            % ship->CurrentMeterValue(METER_BATTLE_SPEED)
-            % ship->CurrentMeterValue(METER_STARLANE_SPEED)
+            % ship->CurrentMeterValue(METER_SPEED)
+            % ship->CurrentMeterValue(METER_SPEED)
             % ship->CurrentMeterValue(METER_MAX_FUEL)
             % design->ColonyCapacity()
             % design->TroopCapacity()
@@ -1834,8 +1833,8 @@ namespace {
                     % ship->CurrentMeterValue(METER_MAX_SHIELD)
                     % ship->CurrentMeterValue(METER_DETECTION)
                     % ship->CurrentMeterValue(METER_STEALTH)
-                    % ship->CurrentMeterValue(METER_BATTLE_SPEED)
-                    % ship->CurrentMeterValue(METER_STARLANE_SPEED)
+                    % ship->CurrentMeterValue(METER_SPEED)
+                    % ship->CurrentMeterValue(METER_SPEED)
         % ship->CurrentMeterValue(METER_MAX_FUEL)
         % design->ColonyCapacity()
         % design->TroopCapacity()

@@ -26,6 +26,8 @@ using boost::io::str;
 
 extern int g_indent;
 
+bool UserStringExists(const std::string& str);
+
 namespace {
     void AddAllObjectsSet(Condition::ObjectSet& condition_non_targets) {
         condition_non_targets.reserve(condition_non_targets.size() + Objects().NumExistingObjects());
@@ -4819,17 +4821,9 @@ namespace {
         case METER_SUPPLY:              return "Supply";             break;
         case METER_STEALTH:             return "Stealth";            break;
         case METER_DETECTION:           return "Detection";          break;
-        case METER_BATTLE_SPEED:        return "BattleSpeed";        break;
-        case METER_STARLANE_SPEED:      return "StarlaneSpeed";      break;
         case METER_DAMAGE:              return "Damage";             break;
-        case METER_ROF:                 return "ROF";                break;
-        case METER_RANGE:               return "Range";              break;
         case METER_SPEED:               return "Speed";              break;
         case METER_CAPACITY:            return "Capacity";           break;
-        case METER_ANTI_SHIP_DAMAGE:    return "AntiShipDamage";     break;
-        case METER_ANTI_FIGHTER_DAMAGE: return "AntiFighterDamage";  break;
-        case METER_LAUNCH_RATE:         return "LaunchRate";         break;
-        case METER_FIGHTER_WEAPON_RANGE:return "FighterWeaponRange"; break;
         default:                        return "?Meter?";            break;
         }
     }
@@ -7562,4 +7556,48 @@ std::string Condition::Not::Dump() const {
     retval += m_operand->Dump();
     --g_indent;
     return retval;
+}
+
+///////////////////////////////////////////////////////////
+// Described                                             //
+///////////////////////////////////////////////////////////
+Condition::Described::~Described()
+{ delete m_condition; }
+
+bool Condition::Described::operator==(const Condition::ConditionBase& rhs) const {
+    if (this == &rhs)
+        return true;
+    if (typeid(*this) != typeid(rhs))
+        return false;
+
+    const Condition::Described& rhs_ = static_cast<const Condition::Described&>(rhs);
+
+   if (m_desc_stringtable_key != rhs_.m_desc_stringtable_key)
+        return false;
+
+    CHECK_COND_VREF_MEMBER(m_condition)
+
+    return true;
+}
+
+void Condition::Described::Eval(const ScriptingContext& parent_context, ObjectSet& matches, ObjectSet& non_matches,
+                          SearchDomain search_domain/* = NON_MATCHES*/) const
+{
+    TemporaryPtr<const UniverseObject> no_object;
+    ScriptingContext local_context(parent_context, no_object);
+
+    if (!m_condition) {
+        ErrorLogger() << "Condition::Described::Eval found no subcondition to evaluate!";
+        return;
+    }
+
+    return m_condition->Eval(parent_context, matches, non_matches, search_domain);
+}
+
+std::string Condition::Described::Description(bool negated/* = false*/) const {
+    if (!m_desc_stringtable_key.empty() && UserStringExists(m_desc_stringtable_key))
+        return UserString(m_desc_stringtable_key);
+    if (m_condition)
+        return m_condition->Description(negated);
+    return "";
 }

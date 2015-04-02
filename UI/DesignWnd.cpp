@@ -90,8 +90,7 @@ namespace {
             case PC_FUEL:
             case PC_COLONY:
             case PC_ARMOUR:
-            case PC_BATTLE_SPEED:
-            case PC_STARLANE_SPEED:
+            case PC_SPEED:
             case PC_RESEARCH:
             case PC_INDUSTRY:
             case PC_TRADE:
@@ -622,7 +621,6 @@ void PartsListBox::Populate() {
          group_it != part_groups.end(); group_it++)
     {
         std::vector<const PartType* > this_group = group_it->second;
-        ShipPartClass pclass = group_it->first.first;
         std::multimap<double, const PartType*> sorted_group;
         for (std::vector<const PartType* >::iterator part_it = this_group.begin();
              part_it != this_group.end(); ++part_it)
