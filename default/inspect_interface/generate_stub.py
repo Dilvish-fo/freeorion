@@ -2,7 +2,8 @@ from itertools import groupby
 import json
 from operator import itemgetter
 import os
-from parse_docs import Docs
+
+from default.inspect_interface.parse_docs import Docs
 
 
 def handle_class(info):
