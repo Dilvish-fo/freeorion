@@ -169,7 +169,7 @@ def make_stub(path):
     for function in sorted(groups['function'], key=itemgetter('name')):
         res.append(handle_function(function))
 
-    stub_path = os.path.join('..', '..', '..', os.path.basename(path.replace('.json', '.py')))
+    stub_path =os.path.basename(path.replace('.json', '.py'))
     with open(stub_path, 'w') as f:
         f.write('\n\n\n'.join(res))
         f.write('\n')
