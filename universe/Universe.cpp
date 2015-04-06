@@ -2191,7 +2191,7 @@ void Universe::ExecuteEffects(const Effect::TargetsCauses& targets_causes,
     m_marked_for_victory.clear();
     std::map< std::string, std::set<int> > executed_nonstacking_effects;
     bool log_verbose = GetOptionsDB().Get<bool>("verbose-logging");
-    
+
     // grouping targets causes by effects group
     // sorting by effects group has already been done in GetEffectsAndTargets()
     // FIXME: GetEffectsAndTargets already produces this separation, exploit that
@@ -2216,7 +2216,7 @@ void Universe::ExecuteEffects(const Effect::TargetsCauses& targets_causes,
     }
 
     // execute each effects group one by one
-    std::vector< std::pair<const Effect::EffectsGroup*, Effect::TargetsCauses> >::iterator effect_group_it;
+    std::vector<std::pair<const Effect::EffectsGroup*, Effect::TargetsCauses> >::iterator effect_group_it;
     for (effect_group_it = dispatched_targets_causes.begin();
          effect_group_it != dispatched_targets_causes.end(); ++effect_group_it)
     {
@@ -2284,9 +2284,106 @@ void Universe::ExecuteEffects(const Effect::TargetsCauses& targets_causes,
     // actually do destroy effect action.  Executing the effect just marks
     // objects to be destroyed, but doesn't actually do so in order to ensure
     // no interaction in order of effects and source or target objects being
-    // destroyed / deleted between determining target sets and executing effects
-    for (std::set<int>::iterator it = m_marked_destroyed.begin(); it != m_marked_destroyed.end(); ++it)
-        RecursiveDestroy(*it);
+    // destroyed / deleted between determining target sets and executing effects.
+    // but, do now collect info about source objects for destruction, to sure
+    // their info is available even if they are destroyed by the upcoming effect
+    // destruction
+
+    for (std::map<int, std::set<int> >::iterator it = m_marked_destroyed.begin();
+         it != m_marked_destroyed.end(); ++it)
+    {
+        TemporaryPtr<UniverseObject> obj = GetUniverseObject(it->first);
+        if (!obj)
+            continue;
+        const std::set<int>& contents = obj->ContainedObjectIDs();
+
+        // recording of what species/empire destroyed what other stuff in
+        // empire statistics for this destroyed object and any contained objects
+        for (std::set<int>::const_iterator source_it = it->second.begin();
+             source_it != it->second.end(); ++source_it)
+        { CountDestructionInStats(it->first, *source_it); }
+
+        for (std::set<int>::const_iterator dest_it = contents.begin();
+             dest_it != contents.end(); ++dest_it)
+        {
+            for (std::set<int>::const_iterator source_it = it->second.begin();
+                 source_it != it->second.end(); ++source_it)
+            { CountDestructionInStats(*dest_it, *source_it); }
+        }
+        // not worried about fleets being deleted because all their ships were
+        // destroyed...  as of this writing there are no stats tracking
+        // destruction of fleets.
+
+        // do actual recursive destruction.
+        RecursiveDestroy(it->first);
+    }
+}
+
+namespace {
+    static const std::string EMPTY_STRING;
+
+    const std::string& GetSpeciesFromObject(TemporaryPtr<const UniverseObject> obj) {
+        TemporaryPtr<const Fleet> obj_fleet;
+        TemporaryPtr<const Ship> obj_ship;
+        TemporaryPtr<const Building> obj_building;
+
+        switch (obj->ObjectType()) {
+        case OBJ_PLANET: {
+            TemporaryPtr<const Planet> obj_planet = boost::static_pointer_cast<const Planet>(obj);
+            return obj_planet->SpeciesName();
+            break;
+        }
+        case OBJ_SHIP: {
+            TemporaryPtr<const Ship> obj_ship = boost::static_pointer_cast<const Ship>(obj);
+            return obj_ship->SpeciesName();
+            break;
+        }
+        default:
+            return EMPTY_STRING;
+        }
+    }
+
+    int GetDesignIDFromObject(TemporaryPtr<const UniverseObject> obj) {
+        if (obj->ObjectType() != OBJ_SHIP)
+            return ShipDesign::INVALID_DESIGN_ID;
+        TemporaryPtr<const Ship> shp = boost::static_pointer_cast<const Ship>(obj);
+        return shp->DesignID();
+    }
+}
+
+void Universe::CountDestructionInStats(int object_id, int source_object_id) {
+    TemporaryPtr<const UniverseObject> obj = GetUniverseObject(object_id);
+    if (!obj)
+        return;
+    TemporaryPtr<const UniverseObject> source = GetUniverseObject(source_object_id);
+    if (!source)
+        return;
+
+    const std::string& species_for_obj = GetSpeciesFromObject(obj);
+    const std::string& species_for_source = GetSpeciesFromObject(source);
+
+    int empire_for_obj_id = obj->Owner();
+    int empire_for_source_id = source->Owner();
+
+    int design_for_obj_id = GetDesignIDFromObject(obj);
+
+    if (Empire* source_empire = GetEmpire(empire_for_source_id)) {
+        source_empire->EmpireShipsDestroyed()[empire_for_obj_id]++;
+
+        if (design_for_obj_id != ShipDesign::INVALID_DESIGN_ID)
+            source_empire->ShipDesignsDestroyed()[design_for_obj_id]++;
+
+        if (species_for_obj.empty())
+            source_empire->SpeciesShipsDestroyed()[species_for_obj]++;
+    }
+
+    if (Empire* obj_empire = GetEmpire(empire_for_obj_id)) {
+        if (!species_for_obj.empty())
+            obj_empire->SpeciesShipsLost()[species_for_obj]++;
+
+        if (design_for_obj_id != ShipDesign::INVALID_DESIGN_ID)
+            obj_empire->ShipDesignsLost()[design_for_obj_id]++;
+    }
 }
 
 void Universe::SetEmpireObjectVisibility(int empire_id, int object_id, Visibility vis) {
@@ -3408,8 +3505,11 @@ bool Universe::Delete(int object_id) {
     return true;
 }
 
-void Universe::EffectDestroy(int object_id)
-{ m_marked_destroyed.insert(object_id); }
+void Universe::EffectDestroy(int object_id, int source_object_id) {
+    if (m_marked_destroyed.find(object_id) != m_marked_destroyed.end())
+        return;
+    m_marked_destroyed[object_id].insert(source_object_id);
+}
 
 void Universe::EffectVictory(int object_id, const std::string& reason_string)
 { m_marked_for_victory.insert(std::pair<int, std::string>(object_id, reason_string)); }

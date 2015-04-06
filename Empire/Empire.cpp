@@ -32,7 +32,7 @@
 #include "boost/date_time/posix_time/posix_time.hpp"
 
 namespace {
-    const float EPSILON = 0.00001f;
+    const float EPSILON = 0.0001f;
     const std::string EMPTY_STRING;
 
     /** sets the .allocated_rp, value for each Tech in the queue.  Only sets
@@ -1789,8 +1789,8 @@ void Empire::UpdateSupplyUnobstructedSystems(const std::set<int>& known_systems)
                     systems_containing_friendly_fleets.insert(system_id);
                     if (fleet->ArrivalStarlane()==system_id)
                         unrestricted_friendly_systems.insert(system_id);
-                } else {
-                    systems_with_lane_preserving_fleets.insert(system_id);
+                    else
+                        systems_with_lane_preserving_fleets.insert(system_id);
                 }
             } else if (fleet->NextSystemID()==INVALID_OBJECT_ID) {
                 int fleet_owner = fleet->Owner();
