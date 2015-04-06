@@ -1987,15 +1987,7 @@ class resourceCenter(object):
 
 class shipDesign(object):
     @property
-    def dump(self):
-        return str()
-
-    @property
-    def canColonize(self):
-        return bool()
-
-    @property
-    def canInvade(self):
+    def isMonster(self):
         return bool()
 
     @property
@@ -2003,11 +1995,27 @@ class shipDesign(object):
         return float()
 
     @property
+    def attackStats(self):
+        return IntVec()
+
+    @property
+    def canColonize(self):
+        return bool()
+
+    @property
+    def hull(self):
+        return str()
+
+    @property
+    def isArmed(self):
+        return bool()
+
+    @property
     def id(self):
         return int()
 
     @property
-    def isMonster(self):
+    def canInvade(self):
         return bool()
 
     @property
@@ -2019,19 +2027,7 @@ class shipDesign(object):
         return StringVec()
 
     @property
-    def battleSpeed(self):
-        return float()
-
-    @property
-    def shields(self):
-        return float()
-
-    @property
-    def isArmed(self):
-        return bool()
-
-    @property
-    def hull(self):
+    def dump(self):
         return str()
 
     @property
@@ -2039,42 +2035,27 @@ class shipDesign(object):
         return int()
 
     @property
-    def structure(self):
-        return float()
-
-    @property
-    def attackStats(self):
-        return IntVec()
-
-    @property
     def starlaneSpeed(self):
         return float()
 
-    def productionCost(self, number1, number2):
-        """
-        C++ signature:
-            float productionCost(class ShipDesign {lvalue},int,int)
-        
-        :param number1:
-        :type number1: int
-        :param number2:
-        :type number2: int
-        :rtype float
-        """
+    @property
+    def shields(self):
         return float()
 
-    def productionLocationForEmpire(self, number1, number2):
+    @property
+    def structure(self):
+        return float()
+
+    def description(self, boolean):
         """
         C++ signature:
-            bool productionLocationForEmpire(class ShipDesign {lvalue},int,int)
+            class std::basic_string<char,struct std::char_traits<char>,class std::allocator<char> > description(class ShipDesign {lvalue},bool)
         
-        :param number1:
-        :type number1: int
-        :param number2:
-        :type number2: int
-        :rtype bool
+        :param boolean:
+        :type boolean: bool
+        :rtype str
         """
-        return bool()
+        return str()
 
     def perTurnCost(self, number1, number2):
         """
@@ -2089,16 +2070,18 @@ class shipDesign(object):
         """
         return float()
 
-    def description(self, boolean):
+    def productionCost(self, number1, number2):
         """
         C++ signature:
-            class std::basic_string<char,struct std::char_traits<char>,class std::allocator<char> > description(class ShipDesign {lvalue},bool)
+            float productionCost(class ShipDesign {lvalue},int,int)
         
-        :param boolean:
-        :type boolean: bool
-        :rtype str
+        :param number1:
+        :type number1: int
+        :param number2:
+        :type number2: int
+        :rtype float
         """
-        return str()
+        return float()
 
     def productionTime(self, number1, number2):
         """
@@ -2123,6 +2106,19 @@ class shipDesign(object):
         :rtype str
         """
         return str()
+
+    def productionLocationForEmpire(self, number1, number2):
+        """
+        C++ signature:
+            bool productionLocationForEmpire(class ShipDesign {lvalue},int,int)
+        
+        :param number1:
+        :type number1: int
+        :param number2:
+        :type number2: int
+        :rtype bool
+        """
+        return bool()
 
 
 class sitrep(object):
@@ -2163,12 +2159,20 @@ class sitrep(object):
 
 class special(object):
     @property
+    def dump(self):
+        return str()
+
+    @property
+    def spawnlimit(self):
+        return int()
+
+    @property
     def description(self):
         return str()
 
     @property
-    def dump(self):
-        return str()
+    def spawnrate(self):
+        return float()
 
     @property
     def name(self):
@@ -3217,18 +3221,13 @@ class meterType(Enum):
         self.name = name
         self.numerator = numerator
 
-    antiFighterDamage = None  # meterType(36, "antiFighterDamage")
-    antiShipDamage = None  # meterType(35, "antiShipDamage")
-    battleSpeed = None  # meterType(28, "battleSpeed")
-    capacity = None  # meterType(34, "capacity")
+    capacity = None  # meterType(30, "capacity")
     construction = None  # meterType(16, "construction")
-    damage = None  # meterType(30, "damage")
+    damage = None  # meterType(29, "damage")
     defense = None  # meterType(21, "defense")
     detection = None  # meterType(27, "detection")
-    fighterWeaponRange = None  # meterType(38, "fighterWeaponRange")
     fuel = None  # meterType(18, "fuel")
     industry = None  # meterType(13, "industry")
-    launchRate = None  # meterType(37, "launchRate")
     maxDefense = None  # meterType(9, "maxDefense")
     maxFuel = None  # meterType(6, "maxFuel")
     maxShield = None  # meterType(7, "maxShield")
@@ -3236,14 +3235,11 @@ class meterType(Enum):
     maxSupply = None  # meterType(11, "maxSupply")
     maxTroops = None  # meterType(10, "maxTroops")
     population = None  # meterType(12, "population")
-    range = None  # meterType(32, "range")
     rebels = None  # meterType(24, "rebels")
     research = None  # meterType(14, "research")
-    rof = None  # meterType(31, "rof")
     shield = None  # meterType(19, "shield")
     size = None  # meterType(25, "size")
-    speed = None  # meterType(33, "speed")
-    starlaneSpeed = None  # meterType(29, "starlaneSpeed")
+    starlaneSpeed = None  # meterType(28, "starlaneSpeed")
     stealth = None  # meterType(26, "stealth")
     structure = None  # meterType(20, "structure")
     supply = None  # meterType(23, "supply")
@@ -3281,17 +3277,9 @@ meterType.rebels = meterType(24, "rebels")
 meterType.size = meterType(25, "size")
 meterType.stealth = meterType(26, "stealth")
 meterType.detection = meterType(27, "detection")
-meterType.battleSpeed = meterType(28, "battleSpeed")
-meterType.starlaneSpeed = meterType(29, "starlaneSpeed")
-meterType.damage = meterType(30, "damage")
-meterType.rof = meterType(31, "rof")
-meterType.range = meterType(32, "range")
-meterType.speed = meterType(33, "speed")
-meterType.capacity = meterType(34, "capacity")
-meterType.antiShipDamage = meterType(35, "antiShipDamage")
-meterType.antiFighterDamage = meterType(36, "antiFighterDamage")
-meterType.launchRate = meterType(37, "launchRate")
-meterType.fighterWeaponRange = meterType(38, "fighterWeaponRange")
+meterType.starlaneSpeed = meterType(28, "starlaneSpeed")
+meterType.damage = meterType(29, "damage")
+meterType.capacity = meterType(30, "capacity")
 
 
 class planetEnvironment(Enum):
@@ -3390,23 +3378,23 @@ class shipPartClass(Enum):
         self.numerator = numerator
 
     armour = None  # shipPartClass(5, "armour")
-    battleSpeed = None  # shipPartClass(11, "battleSpeed")
-    bombard = None  # shipPartClass(14, "bombard")
+    bombard = None  # shipPartClass(13, "bombard")
     colony = None  # shipPartClass(10, "colony")
     detection = None  # shipPartClass(7, "detection")
     fighters = None  # shipPartClass(2, "fighters")
     fuel = None  # shipPartClass(9, "fuel")
-    general = None  # shipPartClass(13, "general")
-    industry = None  # shipPartClass(15, "industry")
+    general = None  # shipPartClass(12, "general")
+    industry = None  # shipPartClass(14, "industry")
     missiles = None  # shipPartClass(1, "missiles")
     pointDefense = None  # shipPartClass(3, "pointDefense")
-    productionLocation = None  # shipPartClass(18, "productionLocation")
-    reserach = None  # shipPartClass(16, "reserach")
+    productionLocation = None  # shipPartClass(17, "productionLocation")
+    research = None  # shipPartClass(15, "research")
     shields = None  # shipPartClass(4, "shields")
     shortRange = None  # shipPartClass(0, "shortRange")
-    starlaneSpeed = None  # shipPartClass(12, "starlaneSpeed")
+    starlaneSpeed = None  # shipPartClass(11, "starlaneSpeed")
     stealth = None  # shipPartClass(8, "stealth")
-    trade = None  # shipPartClass(17, "trade")
+    trade = None  # shipPartClass(16, "trade")
+    troops = None  # shipPartClass(6, "troops")
 
 shipPartClass.shortRange = shipPartClass(0, "shortRange")
 shipPartClass.missiles = shipPartClass(1, "missiles")
@@ -3414,18 +3402,18 @@ shipPartClass.fighters = shipPartClass(2, "fighters")
 shipPartClass.pointDefense = shipPartClass(3, "pointDefense")
 shipPartClass.shields = shipPartClass(4, "shields")
 shipPartClass.armour = shipPartClass(5, "armour")
+shipPartClass.troops = shipPartClass(6, "troops")
 shipPartClass.detection = shipPartClass(7, "detection")
 shipPartClass.stealth = shipPartClass(8, "stealth")
 shipPartClass.fuel = shipPartClass(9, "fuel")
 shipPartClass.colony = shipPartClass(10, "colony")
-shipPartClass.battleSpeed = shipPartClass(11, "battleSpeed")
-shipPartClass.starlaneSpeed = shipPartClass(12, "starlaneSpeed")
-shipPartClass.general = shipPartClass(13, "general")
-shipPartClass.bombard = shipPartClass(14, "bombard")
-shipPartClass.industry = shipPartClass(15, "industry")
-shipPartClass.reserach = shipPartClass(16, "reserach")
-shipPartClass.trade = shipPartClass(17, "trade")
-shipPartClass.productionLocation = shipPartClass(18, "productionLocation")
+shipPartClass.starlaneSpeed = shipPartClass(11, "starlaneSpeed")
+shipPartClass.general = shipPartClass(12, "general")
+shipPartClass.bombard = shipPartClass(13, "bombard")
+shipPartClass.industry = shipPartClass(14, "industry")
+shipPartClass.research = shipPartClass(15, "research")
+shipPartClass.trade = shipPartClass(16, "trade")
+shipPartClass.productionLocation = shipPartClass(17, "productionLocation")
 
 
 class shipSlotType(Enum):
