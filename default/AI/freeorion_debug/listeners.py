@@ -37,9 +37,7 @@ def register_post_handler(function_name, handler):
 def listener(funct):
     @wraps(funct)
     def wrapper(*args, **kwargs):
-        print "!!!zzxxcc", args, kwargs
         pre, post = handlers.get(funct.__name__, [[], []])
-        print pre, post
         [x(*args, **kwargs) for x in pre]
         res = funct(*args)
         [x(res, *args, **kwargs) for x in post]
