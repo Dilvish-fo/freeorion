@@ -3,9 +3,12 @@
 #define _MilitaryPanel_h_
 
 #include "AccordionPanel.h"
+#include "../universe/Enums.h"
+#include "../universe/TemporaryPtr.h"
 
 class MultiIconValueIndicator;
 class MultiMeterStatusBar;
+class Planet;
 class StatisticIcon;
 
 /** Shows military-related meters including stealth, detection, shields, defense; with meter bars */
@@ -17,40 +20,45 @@ public:
     //@}
 
     /** \name Accessors */ //@{
-    int                     PlanetID() const { return m_planet_id; }
+    int PlanetID() const { return m_planet_id; }
     //@}
 
     /** \name Mutators */ //@{
-    void                    ExpandCollapse(bool expanded);  ///< expands or collapses panel to show details or just summary info
+    /** expands or collapses panel to show details or just summary info */
+    void ExpandCollapse(bool expanded);
 
-    virtual void            Render();
-    virtual void            MouseWheel(const GG::Pt& pt, int move, GG::Flags<GG::ModKey> mod_keys);
-    virtual void            SizeMove(const GG::Pt& ul, const GG::Pt& lr);
+    /** updates indicators with values of associated object.  Does not do layout and resizing. */
+    void Update();
+    /** updates, redoes layout, resizes indicator */
+    void Refresh();
+    //@}
 
-    void                    Update();                       ///< updates indicators with values of associated object.  Does not do layout and resizing.
-    void                    Refresh();                      ///< updates, redoes layout, resizes indicator
-
-    /** Enables, or disables if \a enable is false, issuing orders via this MilitaryPanel. */
-    void                    EnableOrderIssuing(bool enable = true);
+protected:
+    /** \name Mutators */ //@{
+    /** resizes panel and positions widgets */
+    virtual void DoLayout();
     //@}
 
 private:
-    void                    ExpandCollapseButtonPressed();  ///< toggles panel expanded or collapsed
-    void                    DoLayout();                     ///< resizes panel and positions widgets
+    /** toggles panel expanded or collapsed */
+    void ExpandCollapseButtonPressed();
 
-    int                         m_planet_id;                ///< object id for the UniverseObject that this panel display info about
+    /** object id for the Planet that this panel displays */
+    int m_planet_id;
 
-    StatisticIcon*              m_fleet_supply_stat;
-    StatisticIcon*              m_shield_stat;
-    StatisticIcon*              m_defense_stat;
-    StatisticIcon*              m_troops_stat;
-    StatisticIcon*              m_detection_stat;
-    StatisticIcon*              m_stealth_stat;
+    /** returns the Planet object with id m_planet_id */
+    TemporaryPtr<const Planet> GetPlanet() const;
 
-    MultiIconValueIndicator*    m_multi_icon_value_indicator;   ///< textually / numerically indicates resource production and construction meter
-    MultiMeterStatusBar*        m_multi_meter_status_bar;       ///< graphically indicates meter values
+    /** Icons for the associated meter type. */
+    std::vector<std::pair<MeterType, StatisticIcon*> > m_meter_stats;
 
-    static std::map<int, bool>  s_expanded_map;             ///< map indexed by popcenter ID indicating whether the PopulationPanel for each object is expanded (true) or collapsed (false)
+    /** textually / numerically indicates military capabilities */
+    MultiIconValueIndicator* m_multi_icon_value_indicator;
+    /** graphically indicates meter values */
+    MultiMeterStatusBar* m_multi_meter_status_bar;
+
+    /** map indexed by popcenter ID indicating whether the PopulationPanel for each object is expanded (true) or collapsed (false) */
+    static std::map<int, bool> s_expanded_map;
 };
 
 #endif

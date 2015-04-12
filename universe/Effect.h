@@ -73,19 +73,12 @@ namespace ValueRef {
   * active in the current turn. */
 class FO_COMMON_API Effect::EffectsGroup {
 public:
-    struct Description {
-        std::string scope_description;
-        std::string activation_description;
-        std::vector<std::string> effect_descriptions;
-    };
-
     EffectsGroup(Condition::ConditionBase* scope, Condition::ConditionBase* activation,
                  const std::vector<EffectBase*>& effects, const std::string& accounting_label = "",
                  const std::string& stacking_group = "") :
         m_scope(scope),
         m_activation(activation),
         m_stacking_group(stacking_group),
-        m_explicit_description(""), // TODO: Get this from stringtable when available
         m_effects(effects),
         m_accounting_label(accounting_label)
     {}
@@ -110,7 +103,6 @@ public:
     Condition::ConditionBase* Scope() const               { return m_scope; }
     Condition::ConditionBase* Activation() const          { return m_activation; }
     const std::vector<EffectBase*>& EffectsList() const         { return m_effects; }
-    Description                     GetDescription() const;
     std::string                     DescriptionString() const;
     const std::string&              AccountingLabel() const     { return m_accounting_label; }
     std::string                     Dump() const;
@@ -121,7 +113,6 @@ protected:
     Condition::ConditionBase*   m_scope;
     Condition::ConditionBase*   m_activation;
     std::string                 m_stacking_group;
-    std::string                 m_explicit_description;
     std::vector<EffectBase*>    m_effects;
     std::string                 m_accounting_label;
 
@@ -196,22 +187,10 @@ private:
   * located in a different type than specified, and would be matched). */
 class FO_COMMON_API Effect::SetShipPartMeter : public Effect::EffectBase {
 public:
-    /** Affects the \a meter_type meters that belong to all parts of class \a
-        part_class.  \a part_class must specify a class of parts for which
-        there is a ship meter (i.e. specifying PC_FUEL would be illegal). */
-    SetShipPartMeter(MeterType meter_type,
-                     ShipPartClass part_class,
-                     ValueRef::ValueRefBase<double>* value);
-
-    /** Affects the \a meter_type meters that belong to all PC_FIGHTERS parts
-        of type \a fighter_type. */
-    SetShipPartMeter(MeterType meter_type,
-                     ValueRef::ValueRefBase<double>* value);
-
-    /** Affects the \a meter_type meters that belong to all parts named \a
+    /** Affects the \a meter_type meter that belongs to part(s) named \a
         part_name. */
     SetShipPartMeter(MeterType meter_type,
-                     const std::string& part_name,
+                     ValueRef::ValueRefBase<std::string>* part_name,
                      ValueRef::ValueRefBase<double>* value);
 
     virtual ~SetShipPartMeter();
@@ -219,16 +198,16 @@ public:
     virtual void        Execute(const ScriptingContext& context) const;
     virtual std::string Description() const;
     virtual std::string Dump() const;
-    const std::string&  GetPartName() const {return m_part_name;}
-    MeterType           GetMeterType() const {return m_meter;};
+
+    const ValueRef::ValueRefBase<std::string>*  GetPartName() const { return m_part_name; }
+    MeterType                                   GetMeterType() const { return m_meter; }
 
     virtual void        SetTopLevelContent(const std::string& content_name);
 
 private:
-    ShipPartClass                   m_part_class;
-    std::string                     m_part_name;
-    MeterType                       m_meter;
-    ValueRef::ValueRefBase<double>* m_value;
+    ValueRef::ValueRefBase<std::string>*    m_part_name;
+    MeterType                               m_meter;
+    ValueRef::ValueRefBase<double>*         m_value;
 
     friend class boost::serialization::access;
     template <class Archive>
@@ -293,8 +272,8 @@ private:
   * the effect does nothing. */
 class FO_COMMON_API Effect::SetEmpireCapital : public Effect::EffectBase {
 public:
-    SetEmpireCapital();
-    SetEmpireCapital(ValueRef::ValueRefBase<int>* empire_id);
+    explicit SetEmpireCapital();
+    explicit SetEmpireCapital(ValueRef::ValueRefBase<int>* empire_id);
     virtual ~SetEmpireCapital();
 
     virtual void        Execute(const ScriptingContext& context) const;
@@ -317,7 +296,7 @@ private:
     SZ_GASGIANT, respectively. */
 class FO_COMMON_API Effect::SetPlanetType : public Effect::EffectBase {
 public:
-    SetPlanetType(ValueRef::ValueRefBase<PlanetType>* type);
+    explicit SetPlanetType(ValueRef::ValueRefBase<PlanetType>* type);
     virtual ~SetPlanetType();
 
     virtual void        Execute(const ScriptingContext& context) const;
@@ -341,7 +320,7 @@ private:
   * or PT_GASGIANT, respectively. */
 class FO_COMMON_API Effect::SetPlanetSize : public Effect::EffectBase {
 public:
-    SetPlanetSize(ValueRef::ValueRefBase<PlanetSize>* size);
+    explicit SetPlanetSize(ValueRef::ValueRefBase<PlanetSize>* size);
     virtual ~SetPlanetSize();
 
     virtual void        Execute(const ScriptingContext& context) const;
@@ -362,7 +341,7 @@ private:
   * and ships, but has no effect on other objects. */
 class FO_COMMON_API Effect::SetSpecies : public Effect::EffectBase {
 public:
-    SetSpecies(ValueRef::ValueRefBase<std::string>* species);
+    explicit SetSpecies(ValueRef::ValueRefBase<std::string>* species);
     virtual ~SetSpecies();
 
     virtual void        Execute(const ScriptingContext& context) const;
@@ -383,7 +362,7 @@ private:
   * \a empire_id was already the owner of the target object. */
 class FO_COMMON_API Effect::SetOwner : public Effect::EffectBase {
 public:
-    SetOwner(ValueRef::ValueRefBase<int>* empire_id);
+    explicit SetOwner(ValueRef::ValueRefBase<int>* empire_id);
     virtual ~SetOwner();
 
     virtual void        Execute(const ScriptingContext& context) const;
@@ -455,7 +434,8 @@ private:
 class FO_COMMON_API Effect::CreatePlanet : public Effect::EffectBase {
 public:
     CreatePlanet(ValueRef::ValueRefBase<PlanetType>* type,
-                 ValueRef::ValueRefBase<PlanetSize>* size);
+                 ValueRef::ValueRefBase<PlanetSize>* size,
+                 ValueRef::ValueRefBase<std::string>* name = 0);
     virtual ~CreatePlanet();
 
     virtual void        Execute(const ScriptingContext& context) const;
@@ -465,8 +445,9 @@ public:
     virtual void        SetTopLevelContent(const std::string& content_name);
 
 private:
-    ValueRef::ValueRefBase<PlanetType>*   m_type;
-    ValueRef::ValueRefBase<PlanetSize>*   m_size;
+    ValueRef::ValueRefBase<PlanetType>*     m_type;
+    ValueRef::ValueRefBase<PlanetSize>*     m_size;
+    ValueRef::ValueRefBase<std::string>*    m_name;
 
     friend class boost::serialization::access;
     template <class Archive>
@@ -476,7 +457,8 @@ private:
 /** Creates a new Building with specified \a type on the \a target Planet. */
 class FO_COMMON_API Effect::CreateBuilding : public Effect::EffectBase {
 public:
-    CreateBuilding(ValueRef::ValueRefBase<std::string>* building_type_name);
+    explicit CreateBuilding(ValueRef::ValueRefBase<std::string>* building_type_name,
+                            ValueRef::ValueRefBase<std::string>* name = 0);
     virtual ~CreateBuilding();
 
     virtual void        Execute(const ScriptingContext& context) const;
@@ -487,6 +469,7 @@ public:
 
 private:
     ValueRef::ValueRefBase<std::string>*    m_building_type_name;
+    ValueRef::ValueRefBase<std::string>*    m_name;
 
     friend class boost::serialization::access;
     template <class Archive>
@@ -498,15 +481,14 @@ private:
   * empire with the specified \a empire_id */
 class FO_COMMON_API Effect::CreateShip : public Effect::EffectBase {
 public:
-    CreateShip(const std::string& predefined_ship_design_name,
-               ValueRef::ValueRefBase<int>* empire_id,
-               ValueRef::ValueRefBase<std::string>* species_name);
-    CreateShip(ValueRef::ValueRefBase<int>* ship_design_id,
-               ValueRef::ValueRefBase<int>* empire_id,
-               ValueRef::ValueRefBase<std::string>* species_name);
-    CreateShip(const std::string& predefined_ship_design_name,
-               ValueRef::ValueRefBase<int>* empire_id);
-    CreateShip(const std::string& predefined_ship_design_name);
+    explicit CreateShip(ValueRef::ValueRefBase<std::string>* predefined_ship_design_name,
+                        ValueRef::ValueRefBase<int>* empire_id = 0,
+                        ValueRef::ValueRefBase<std::string>* species_name = 0,
+                        ValueRef::ValueRefBase<std::string>* ship_name = 0);
+    explicit CreateShip(ValueRef::ValueRefBase<int>* ship_design_id,
+                        ValueRef::ValueRefBase<int>* empire_id = 0,
+                        ValueRef::ValueRefBase<std::string>* species_name = 0,
+                        ValueRef::ValueRefBase<std::string>* ship_name = 0);
     virtual ~CreateShip();
 
     virtual void        Execute(const ScriptingContext& context) const;
@@ -516,10 +498,11 @@ public:
     virtual void        SetTopLevelContent(const std::string& content_name);
 
 private:
-    std::string                             m_design_name;
+    ValueRef::ValueRefBase<std::string>*    m_design_name;
     ValueRef::ValueRefBase<int>*            m_design_id;
     ValueRef::ValueRefBase<int>*            m_empire_id;
     ValueRef::ValueRefBase<std::string>*    m_species_name;
+    ValueRef::ValueRefBase<std::string>*    m_name;
 
     friend class boost::serialization::access;
     template <class Archive>
@@ -530,12 +513,14 @@ private:
   * of the specified \a size. */
 class FO_COMMON_API Effect::CreateField : public Effect::EffectBase {
 public:
-    CreateField(const std::string& field_type_name,
-                ValueRef::ValueRefBase<double>* size = 0);
-    CreateField(const std::string& field_type_name,
+    explicit CreateField(ValueRef::ValueRefBase<std::string>* field_type_name,
+                         ValueRef::ValueRefBase<double>* size = 0,
+                         ValueRef::ValueRefBase<std::string>* name = 0);
+    CreateField(ValueRef::ValueRefBase<std::string>* field_type_name,
                 ValueRef::ValueRefBase<double>* x,
                 ValueRef::ValueRefBase<double>* y,
-                ValueRef::ValueRefBase<double>* size = 0);
+                ValueRef::ValueRefBase<double>* size = 0,
+                ValueRef::ValueRefBase<std::string>* name = 0);
     virtual ~CreateField();
 
     virtual void        Execute(const ScriptingContext& context) const;
@@ -545,10 +530,11 @@ public:
     virtual void        SetTopLevelContent(const std::string& content_name);
 
 private:
-    const std::string               m_field_type_name;
-    ValueRef::ValueRefBase<double>* m_x;
-    ValueRef::ValueRefBase<double>* m_y;
-    ValueRef::ValueRefBase<double>* m_size;
+    ValueRef::ValueRefBase<std::string>*    m_field_type_name;
+    ValueRef::ValueRefBase<double>*         m_x;
+    ValueRef::ValueRefBase<double>*         m_y;
+    ValueRef::ValueRefBase<double>*         m_size;
+    ValueRef::ValueRefBase<std::string>*    m_name;
 
     friend class boost::serialization::access;
     template <class Archive>
@@ -561,9 +547,11 @@ class FO_COMMON_API Effect::CreateSystem : public Effect::EffectBase {
 public:
     CreateSystem(ValueRef::ValueRefBase< ::StarType>* type,
                  ValueRef::ValueRefBase<double>* x,
-                 ValueRef::ValueRefBase<double>* y);
+                 ValueRef::ValueRefBase<double>* y,
+                 ValueRef::ValueRefBase<std::string>* name = 0);
     CreateSystem(ValueRef::ValueRefBase<double>* x,
-                 ValueRef::ValueRefBase<double>* y);
+                 ValueRef::ValueRefBase<double>* y,
+                 ValueRef::ValueRefBase<std::string>* name = 0);
     virtual ~CreateSystem();
 
     virtual void        Execute(const ScriptingContext& context) const;
@@ -576,6 +564,7 @@ private:
     ValueRef::ValueRefBase< ::StarType>*    m_type;
     ValueRef::ValueRefBase<double>*         m_x;
     ValueRef::ValueRefBase<double>*         m_y;
+    ValueRef::ValueRefBase<std::string>*    m_name;
 
     friend class boost::serialization::access;
     template <class Archive>
@@ -609,6 +598,7 @@ public:
     explicit AddSpecial(const std::string& name, float capacity = 1.0f);
     explicit AddSpecial(ValueRef::ValueRefBase<std::string>* name,
                         ValueRef::ValueRefBase<double>* capacity = 0);
+    ~AddSpecial();
 
     virtual void        Execute(const ScriptingContext& context) const;
     virtual std::string Description() const;
@@ -629,16 +619,18 @@ private:
   * no effect if no such Special was already attached to the target object. */
 class FO_COMMON_API Effect::RemoveSpecial : public Effect::EffectBase {
 public:
-    RemoveSpecial(const std::string& name); // TODO: make this a ValueRefBase<std::string>*
+    explicit RemoveSpecial(const std::string& name);
+    explicit RemoveSpecial(ValueRef::ValueRefBase<std::string>* name);
+    ~RemoveSpecial();
 
     virtual void        Execute(const ScriptingContext& context) const;
     virtual std::string Description() const;
     virtual std::string Dump() const;
 
-    virtual void        SetTopLevelContent(const std::string& content_name) {}
+    virtual void        SetTopLevelContent(const std::string& content_name);
 
 private:
-    std::string m_name;
+    ValueRef::ValueRefBase<std::string>*    m_name;
 
     friend class boost::serialization::access;
     template <class Archive>
@@ -881,9 +873,8 @@ private:
 
 class FO_COMMON_API Effect::GiveEmpireTech : public Effect::EffectBase {
 public:
-    explicit GiveEmpireTech(const std::string& tech_name);
-    GiveEmpireTech(const std::string& tech_name,
-                   ValueRef::ValueRefBase<int>* empire_id);
+    explicit GiveEmpireTech(ValueRef::ValueRefBase<std::string>* tech_name,
+                            ValueRef::ValueRefBase<int>* empire_id = 0);
     virtual ~GiveEmpireTech();
 
     virtual void        Execute(const ScriptingContext& context) const;
@@ -893,8 +884,8 @@ public:
     virtual void        SetTopLevelContent(const std::string& content_name);
 
 private:
-    std::string                     m_tech_name;
-    ValueRef::ValueRefBase<int>*    m_empire_id;
+    ValueRef::ValueRefBase<std::string>*    m_tech_name;
+    ValueRef::ValueRefBase<int>*            m_empire_id;
 
     friend class boost::serialization::access;
     template <class Archive>
@@ -994,7 +985,6 @@ void Effect::EffectsGroup::serialize(Archive& ar, const unsigned int version)
     ar  & BOOST_SERIALIZATION_NVP(m_scope)
         & BOOST_SERIALIZATION_NVP(m_activation)
         & BOOST_SERIALIZATION_NVP(m_stacking_group)
-        & BOOST_SERIALIZATION_NVP(m_explicit_description)
         & BOOST_SERIALIZATION_NVP(m_effects);
 }
 
@@ -1014,8 +1004,6 @@ template <class Archive>
 void Effect::SetShipPartMeter::serialize(Archive& ar, const unsigned int version)
 {
     ar  & BOOST_SERIALIZATION_BASE_OBJECT_NVP(EffectBase)
-        & BOOST_SERIALIZATION_NVP(m_part_class)
-        & BOOST_SERIALIZATION_NVP(m_fighter_type)
         & BOOST_SERIALIZATION_NVP(m_part_name)
         & BOOST_SERIALIZATION_NVP(m_meter)
         & BOOST_SERIALIZATION_NVP(m_value);
@@ -1079,14 +1067,16 @@ void Effect::CreatePlanet::serialize(Archive& ar, const unsigned int version)
 {
     ar  & BOOST_SERIALIZATION_BASE_OBJECT_NVP(EffectBase)
         & BOOST_SERIALIZATION_NVP(m_type)
-        & BOOST_SERIALIZATION_NVP(m_size);
+        & BOOST_SERIALIZATION_NVP(m_size)
+        & BOOST_SERIALIZATION_NVP(m_name);
 }
 
 template <class Archive>
 void Effect::CreateBuilding::serialize(Archive& ar, const unsigned int version)
 {
     ar  & BOOST_SERIALIZATION_BASE_OBJECT_NVP(EffectBase)
-        & BOOST_SERIALIZATION_NVP(m_building_type_name);
+        & BOOST_SERIALIZATION_NVP(m_building_type_name)
+        & BOOST_SERIALIZATION_NVP(m_name);
 }
 
 template <class Archive>
@@ -1094,7 +1084,10 @@ void Effect::CreateShip::serialize(Archive& ar, const unsigned int version)
 {
     ar  & BOOST_SERIALIZATION_BASE_OBJECT_NVP(EffectBase)
         & BOOST_SERIALIZATION_NVP(m_design_name)
-        & BOOST_SERIALIZATION_NVP(m_empire_id);
+        & BOOST_SERIALIZATION_NVP(m_design_id)
+        & BOOST_SERIALIZATION_NVP(m_empire_id)
+        & BOOST_SERIALIZATION_NVP(m_species_name)
+        & BOOST_SERIALIZATION_NVP(m_name);
 }
 
 template <class Archive>
@@ -1104,7 +1097,8 @@ void Effect::CreateField::serialize(Archive& ar, const unsigned int version)
         & BOOST_SERIALIZATION_NVP(m_field_type_name)
         & BOOST_SERIALIZATION_NVP(m_x)
         & BOOST_SERIALIZATION_NVP(m_y)
-        & BOOST_SERIALIZATION_NVP(m_size);
+        & BOOST_SERIALIZATION_NVP(m_size)
+        & BOOST_SERIALIZATION_NVP(m_name);
 }
 
 template <class Archive>
@@ -1113,7 +1107,8 @@ void Effect::CreateSystem::serialize(Archive& ar, const unsigned int version)
     ar  & BOOST_SERIALIZATION_BASE_OBJECT_NVP(EffectBase)
         & BOOST_SERIALIZATION_NVP(m_type)
         & BOOST_SERIALIZATION_NVP(m_x)
-        & BOOST_SERIALIZATION_NVP(m_y);
+        & BOOST_SERIALIZATION_NVP(m_y)
+        & BOOST_SERIALIZATION_NVP(m_name);
 }
 
 template <class Archive>

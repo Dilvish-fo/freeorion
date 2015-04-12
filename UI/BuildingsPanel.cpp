@@ -49,8 +49,6 @@ namespace {
     { return HumanClientApp::GetApp()->GetClientType() == Networking::CLIENT_TYPE_HUMAN_MODERATOR; }
 }
 
-std::map<int, bool> BuildingsPanel::s_expanded_map = std::map<int, bool>();
-
 BuildingsPanel::BuildingsPanel(GG::X w, int columns, int planet_id) :
     AccordionPanel(w),
     m_planet_id(planet_id),
@@ -92,25 +90,6 @@ void BuildingsPanel::ExpandCollapse(bool expanded) {
     DoLayout();
 }
 
-void BuildingsPanel::Render() {
-    if (Height() < 1) return;   // don't render if empty
-
-    // Draw outline and background...
-    GG::FlatRectangle(UpperLeft(), LowerRight(), ClientUI::WndColor(), ClientUI::WndOuterBorderColor(), 1);
-}
-
-void BuildingsPanel::MouseWheel(const GG::Pt& pt, int move, GG::Flags<GG::ModKey> mod_keys)
-{ ForwardEventToParent(); }
-
-void BuildingsPanel::SizeMove(const GG::Pt& ul, const GG::Pt& lr) {
-    GG::Pt old_size = GG::Wnd::Size();
-
-    AccordionPanel::SizeMove(ul, lr);
-
-    if (old_size != GG::Wnd::Size())
-        DoLayout();
-}
-
 void BuildingsPanel::Update() {
     //std::cout << "BuildingsPanel::Update" << std::endl;
 
@@ -131,11 +110,9 @@ void BuildingsPanel::Update() {
 
     const int indicator_size = static_cast<int>(Value(Width() * 1.0 / m_columns));
 
-
     int this_client_empire_id = HumanClientApp::GetApp()->EmpireID();
     const std::set<int>& this_client_known_destroyed_objects = GetUniverse().EmpireKnownDestroyedObjectIDs(this_client_empire_id);
     const std::set<int>& this_client_stale_object_info = GetUniverse().EmpireStaleKnowledgeObjectIDs(this_client_empire_id);
-
 
     // get existing / finished buildings and use them to create building indicators
     for (std::set<int>::const_iterator it = buildings.begin(); it != buildings.end(); ++it) {
@@ -189,15 +166,22 @@ void BuildingsPanel::Update() {
 }
 
 void BuildingsPanel::Refresh() {
-    //std::cout << "BuildingsPanel::Refresh" << std::endl;
     Update();
     DoLayout();
+}
+
+void BuildingsPanel::EnableOrderIssuing(bool enable/* = true*/) {
+    for (std::vector<BuildingIndicator*>::iterator it = m_building_indicators.begin();
+         it != m_building_indicators.end(); ++it)
+    { (*it)->EnableOrderIssuing(enable); }
 }
 
 void BuildingsPanel::ExpandCollapseButtonPressed()
 { ExpandCollapse(!s_expanded_map[m_planet_id]); }
 
 void BuildingsPanel::DoLayout() {
+    AccordionPanel::DoLayout();
+
     int row = 0;
     int column = 0;
     const int padding = 5;      // space around and between adjacent indicators
@@ -222,8 +206,8 @@ void BuildingsPanel::DoLayout() {
             }
             ++n;
         }
-        height = m_expand_button->Height();
 
+        height = m_expand_button->Height();
     } else {
         for (std::vector<BuildingIndicator*>::iterator it = m_building_indicators.begin(); it != m_building_indicators.end(); ++it) {
             BuildingIndicator* ind = *it;
@@ -267,12 +251,7 @@ void BuildingsPanel::DoLayout() {
     SetCollapsed(!s_expanded_map[m_planet_id]);
 }
 
-void BuildingsPanel::EnableOrderIssuing(bool enable/* = true*/) {
-    for (std::vector<BuildingIndicator*>::iterator it = m_building_indicators.begin();
-         it != m_building_indicators.end(); ++it)
-    { (*it)->EnableOrderIssuing(enable); }
-}
-
+std::map<int, bool> BuildingsPanel::s_expanded_map;
 
 /////////////////////////////////////
 //       BuildingIndicator         //

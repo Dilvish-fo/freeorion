@@ -134,6 +134,10 @@ Fleet %1%
 NEW_FLEET_NAME_NO_NUMBER
 Fleet
 
+# used to generate name for effect-created planets. %1% is the system name.
+NEW_PLANET_NAME
+%1% Nova
+
 EMPTY_SPACE
 Deep Space
 
@@ -6559,17 +6563,6 @@ Effect is active if the source is an object%1%
 DESC_EFFECTS_GROUP_ALWAYS_ACTIVE
 Effect is always active
 
-DESC_EFFECTS_GROUP_SCOPE_DESC
-'''%1%
-'''
-
-DESC_EFFECTS_GROUP_ACTIVATION_DESC
-'''%1%
-'''
-
-DESC_EFFECTS_GROUP_EFFECT_DESC
-'''%1%
-'''
 
 DESC_EFFECTS_GROUP_EFFECTS_GROUP_DESC
 '''%1%
@@ -10390,7 +10383,7 @@ ULTIMATE_SUPPLY
 '''++	Ultimate [[encyclopedia SUPPLY_TITLE]]: +3'''
 
 BROAD_EP
-'''++	Broad Planet Tolerance: flourishes on more types.'''
+'''++	Broad Planet Tolerance: can tolerate more types.'''
 
 NARROW_EP
 '''−	Narrow Planet Tolerance: flourishes on fewer types.'''
