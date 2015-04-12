@@ -4,8 +4,10 @@ these methods in turn activate other portions of the python AI code."""
 import pickle  # Python object serialization library
 import sys
 import random
+from freeorion_debug.listeners import listener
 from freeorion_debug.interactive_shell import handle_debug_chat
 from freeorion_debug import extend_free_orion_AI_interface  # update fo in import
+import freeorion_debug.handlers
 import freeOrionAIInterface as fo  # interface used to interact with FreeOrion AI client  # pylint: disable=import-error
 # pylint: disable=relative-import
 import AIstate
@@ -150,6 +152,7 @@ def handleDiplomaticStatusUpdate(status_update):  # pylint: disable=invalid-name
 
 
 @chat_on_error
+@listener
 def generateOrders():  # pylint: disable=invalid-name
     """Called once per turn to tell the Python AI to generate and issue orders to control its empire.
     at end of this function, fo.doneTurn() should be called to indicate to the client that orders are finished
@@ -217,32 +220,12 @@ def generateOrders():  # pylint: disable=invalid-name
       universe'''
 
     turn_timer.start("AI planning")
-    universe = fo.getUniverse()
     empire = fo.getEmpire()
-    planet_id = PlanetUtilsAI.get_capital()
     # set the random seed (based on galaxy seed, empire ID and current turn)
     # for game-reload consistency 
     random_seed = str(fo.getGalaxySetupData().seed) + "%03d%05d" % (fo.empireID(), fo.currentTurn())
     random.seed(random_seed)
-    planet = None
-    if planet_id is not None:
-        planet = universe.getPlanet(planet_id)
     aggression_name = fo.aggression.values[foAIstate.aggression].name
-    print "***************************************************************************"
-    print "**********   String for chart. Do not modify.   ***************************"
-    print ("Generating Orders")
-    print ("EmpireID: {empire.empireID}"
-           " Name: {empire.name}_{empire.empireID}_pid:{p_id}_{p_name}RIdx_{res_idx}_{aggression}"
-           " Turn: {turn}").format(empire=empire,  p_id=fo.playerID(), p_name=fo.playerName(),
-                                   res_idx=ResearchAI.get_research_index(), turn=fo.currentTurn(),
-                                   aggression=aggression_name.capitalize())
-    print "EmpireColors: {0.colour.r} {0.colour.g} {0.colour.b} {0.colour.a}".format(empire)
-    if planet:
-        print "CapitalID: " + str(planet_id) + " Name: " + planet.name + " Species: " + planet.speciesName
-    else:
-        print "CapitalID: None Currently Name: None Species: None "
-    print "***************************************************************************"
-    print "***************************************************************************"
 
     if fo.currentTurn() == 1:
         declare_war_on_all()

@@ -16,6 +16,7 @@ TIMER_SECTION = 'Timers'
 TIMERS_USE_TIMERS = 'timers_to_log'
 TIMERS_TO_FILE = 'timers_dump'
 TIMERS_DUMP_FOLDER = 'timers_dump_folder'
+HANDLERS = 'handlers'
 
 flat_options = odict()
 sectioned_options = odict()
@@ -111,13 +112,17 @@ def _get_preset_default_ai_options():
     :return:
     """
     return odict([
-                (TIMER_SECTION, odict([
-                    (TIMERS_USE_TIMERS, False),
-                    (TIMERS_TO_FILE, False),
-                    (TIMERS_DUMP_FOLDER, 'timers')
-                    ])
-                )
-            ])
+        (TIMER_SECTION, odict([
+            (TIMERS_USE_TIMERS, False),
+            (TIMERS_TO_FILE, False),
+            (TIMERS_DUMP_FOLDER, 'timers')
+        ])
+        ),
+        ('main', odict([
+            (HANDLERS, '')
+        ])
+        )  # module names in handler directory, joined by space
+    ])
 
 
 def _create_default_config_file(path):
