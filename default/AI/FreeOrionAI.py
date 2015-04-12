@@ -7,7 +7,6 @@ import random
 from freeorion_debug.listeners import listener
 from freeorion_debug.interactive_shell import handle_debug_chat
 from freeorion_debug import extend_free_orion_AI_interface  # update fo in import
-import freeorion_debug.handlers
 import freeOrionAIInterface as fo  # interface used to interact with FreeOrion AI client  # pylint: disable=import-error
 # pylint: disable=relative-import
 import AIstate
@@ -23,11 +22,6 @@ import ResearchAI
 import ResourcesAI
 from freeorion_tools import UserString, chat_on_error, print_error
 from freeorion_debug import Timer
-
-import os
-import sys
-sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'inspect_interface'))
-from interface_inspector import inspect
 
 main_timer = Timer('timer', write_log=True)
 turn_timer = Timer('bucket', write_log=True)
@@ -157,68 +151,6 @@ def generateOrders():  # pylint: disable=invalid-name
     """Called once per turn to tell the Python AI to generate and issue orders to control its empire.
     at end of this function, fo.doneTurn() should be called to indicate to the client that orders are finished
     and can be sent to the server for processing."""
-    capital_id = PlanetUtilsAI.get_capital()
-    u = fo.getUniverse()
-    fleets_int_vector = u.fleetIDs
-    fleet = u.getFleet(list(fleets_int_vector)[0])
-    ship = u.getShip(list(u.shipIDs)[0])
-    design = fo.getShipDesign(ship.designID)
-    empire = fo.getEmpire()
-
-    tech = fo.getTech('SHP_WEAPON_1_3')
-    tech_spec = list(tech.unlockedItems)[0]
-
-    part_id = list(empire.availableShipParts)[0]
-    part_type = fo.getPartType(part_id)
-
-    prod_queue = empire.productionQueue
-    fo.issueEnqueueShipProductionOrder(list(empire.availableShipDesigns)[0], capital_id)
-
-    research_queue = empire.researchQueue
-
-    fo.issueEnqueueTechOrder('SHP_WEAPON_1_2', -1)
-
-    planet = u.getPlanet(capital_id)
-
-    building = list(planet.buildingIDs)[0]
-
-    inspect(
-        fo,
-        u,
-        fleet,
-        planet,
-        u.getSystem(planet.systemID),
-        ship,
-        empire,
-        design,
-        tech,
-        tech_spec,
-        fo.getFieldType('FLD_ION_STORM'),
-        fo.getBuildingType('BLD_SHIPYARD_BASE'),
-        fo.getGalaxySetupData(),
-        fo.getHullType('SH_XENTRONIUM'),
-        fo.getPartType('SR_WEAPON_1_1'),
-        fo.getSpecial('MODERATE_TECH_NATIVES_SPECIAL'),
-        fo.getSpecies('SP_ABADDONI'),
-        fo.getTech('SHP_WEAPON_4_1'),
-        fo.diplomaticMessage(1, 2, fo.diplomaticMessageType.acceptProposal),
-        fleets_int_vector,
-        part_type,
-        prod_queue,
-        prod_queue.allocatedPP,
-        prod_queue[0],
-        research_queue,
-        research_queue[0],
-        empire.getSitRep(0),
-        u.getBuilding(building),
-    )
-    exit(1)
-    '''
-
-    getSpecies string species
-     string tech
-      universe'''
-
     turn_timer.start("AI planning")
     empire = fo.getEmpire()
     # set the random seed (based on galaxy seed, empire ID and current turn)
