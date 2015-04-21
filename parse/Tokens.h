@@ -376,6 +376,7 @@
     (ShipPartMeter)                             \
     (Ships)                                     \
     (Short_Description)                         \
+    (ShortestPath)                              \
     (ShortRange)                                \
     (Sin)                                       \
     (Size)                                      \
@@ -436,6 +437,13 @@
     (TestValue)                                 \
     (TheEmpire)                                 \
     (Theory)                                    \
+    (ThisBuilding)                              \
+    (ThisField)                                 \
+    (ThisHull)                                  \
+    (ThisPart)                                  \
+    (ThisTech)                                  \
+    (ThisSpecies)                               \
+    (ThisSpecial)                               \
     (Tiny)                                      \
     (TopPriorityEnqueuedTech)                   \
     (TopPriorityResearchableTech)               \

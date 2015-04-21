@@ -9,6 +9,7 @@
 #include <map>
 #include <set>
 
+#include <boost/algorithm/string/case_conv.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/variant.hpp>
 #include <boost/serialization/access.hpp>
@@ -48,11 +49,14 @@ struct PartHullCommonParams {
         production_cost(production_cost_),
         production_time(production_time_),
         producible(producible_),
-        tags(tags_),
+        tags(),
         location(location_),
         effects(effects_),
         icon(icon_)
-    {}
+    {
+        for ( std::set< std::string >::iterator tag_it = tags_.begin(); tag_it != tags_.end(); tag_it++)
+            tags.insert(boost::to_upper_copy<std::string>(*tag_it));
+    }
 
     ValueRef::ValueRefBase<double>*                         production_cost;
     ValueRef::ValueRefBase<int>*                            production_time;
@@ -92,20 +96,25 @@ public:
         m_production_time(common_params.production_time),
         m_producible(common_params.producible),
         m_mountable_slot_types(mountable_slot_types),
-        m_tags(common_params.tags),
+        m_tags(),
         m_location(common_params.location),
         m_effects(),
         m_icon(common_params.icon)
-    { Init(common_params.effects); }
+    {
+        Init(common_params.effects);
+        for ( std::set< std::string >::iterator tag_it = common_params.tags.begin(); tag_it != common_params.tags.end(); tag_it++)
+            m_tags.insert(boost::to_upper_copy<std::string>(*tag_it));
+    }
 
     ~PartType();
     //@}
 
     /** \name Accessors */ //@{
     const std::string&      Name() const            { return m_name; };             ///< returns name of part
-    const std::string&      Description() const     { return m_description; }       ///< returns description, including a description of the stats and effects of this part
+    const std::string&      Description() const     { return m_description; }       ///< returns description string, generally a UserString key.
     ShipPartClass           Class() const           { return m_class; }             ///< returns that class of part that this is.
     float                   Capacity() const;
+    const std::string       CapacityDescription() const;                            ///< returns a translated description of the part capacity, with numeric value
     bool                    CanMountInSlotType(ShipSlotType slot_type) const;       ///< returns true if this part can be placed in a slot of the indicated type
     const std::vector<ShipSlotType>&
                             MountableSlotTypes() const  { return m_mountable_slot_types; }
@@ -263,12 +272,16 @@ public:
         m_production_time(common_params.production_time),
         m_producible(common_params.producible),
         m_slots(slots),
-        m_tags(common_params.tags),
+        m_tags(),
         m_location(common_params.location),
         m_effects(),
         m_graphic(graphic),
         m_icon(common_params.icon)
-    { Init(common_params.effects); }
+    {
+        Init(common_params.effects);
+        for ( std::set< std::string >::iterator tag_it = common_params.tags.begin(); tag_it != common_params.tags.end(); tag_it++)
+            m_tags.insert(boost::to_upper_copy<std::string>(*tag_it));
+    }
 
     HullType(const std::string& name, const std::string& description,
              const HullTypeStats& stats,
@@ -285,12 +298,16 @@ public:
         m_production_time(common_params.production_time),
         m_producible(common_params.producible),
         m_slots(slots),
-        m_tags(common_params.tags),
+        m_tags(),
         m_location(common_params.location),
         m_effects(),
         m_graphic(graphic),
         m_icon(common_params.icon)
-    { Init(common_params.effects); }
+    {
+        Init(common_params.effects);
+        for ( std::set< std::string >::iterator tag_it = common_params.tags.begin(); tag_it != common_params.tags.end(); tag_it++)
+            m_tags.insert(boost::to_upper_copy<std::string>(*tag_it));
+    }
 
     ~HullType();
     //@}

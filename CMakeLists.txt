@@ -12,7 +12,7 @@ project(FreeOrion)
 set(FreeOrion_VERSION 0.4.4+)
 set(FREEORION_RELEASE false)
 
-set(MINIMUM_BOOST_VERSION 1.47.0)
+set(MINIMUM_BOOST_VERSION 1.54.0)
 
 option(BUILD_TESTS "Controls generation of unit tests." OFF)
 
@@ -37,7 +37,6 @@ if (WIN32)
         -D_SCL_SECURE_NO_DEPRECATE
         -D_CRT_NONSTDC_NO_DEPRECATE
         -DBOOST_ALL_DYN_LINK
-        -DLOG4CPP_STLPORT_AND_BOOST_BUILD
         -DFREEORION_WIN32
         -D_WIN32_WINNT=0x0501
     )
@@ -57,6 +56,7 @@ elseif (CMAKE_SYSTEM_NAME STREQUAL "Linux")
     add_definitions(
         -DFREEORION_LINUX
         -DENABLE_BINRELOC
+        -DBOOST_ALL_DYN_LINK
     )
     set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated -Wall -Wno-parentheses")
 elseif (CMAKE_SYSTEM_NAME STREQUAL "FreeBSD")
@@ -70,24 +70,16 @@ else ()
     message(FATAL_ERROR "Unknown platform type! Your setup is not a supported platform for FreeOrion.")
 endif ()
 
-find_package(Subversion)
-set(FreeOrion_WC_REVISION ???)
-set(FreeOrion_BUILDSYS "CMake")
-if (Subversion_FOUND AND (
-  IS_DIRECTORY "${CMAKE_SOURCE_DIR}/.svn" OR
-  IS_DIRECTORY "${CMAKE_SOURCE_DIR}/../.svn" OR
-  IS_DIRECTORY "${CMAKE_SOURCE_DIR}/../../.svn")
-)
-    Subversion_WC_INFO("${CMAKE_SOURCE_DIR}" FreeOrion)
-endif ()
-configure_file(
-    ${CMAKE_SOURCE_DIR}/util/Version.cpp.in
-    ${CMAKE_BINARY_DIR}/util/Version.cpp
-)
+find_package(PythonInterp REQUIRED)
 
-if("${FreeOrion_WC_REVISION}" STREQUAL "???")
-    set(FreeOrion_WC_REVISION "unknown")
-endif ()
+# To run the version generation every compile we need to deferr the
+# execution to a separate target and the existing python command
+add_custom_target(freeorionversion
+    COMMAND
+    "${CMAKE_SOURCE_DIR}/cmake/make_versioncpp.py"
+    "${CMAKE_SOURCE_DIR}"
+    "CMake"
+)
 
 if (WIN32)
     # Add icon resource file to freeorion.exe
@@ -108,7 +100,7 @@ set(LIB_SUFFIX ${OLD_LIB_SUFFIX})
 ########################################
 # Dependencies                         #
 ########################################
-find_package(Boost ${MINIMUM_BOOST_VERSION} COMPONENTS chrono date_time filesystem regex serialization signals system thread REQUIRED)
+find_package(Boost ${MINIMUM_BOOST_VERSION} COMPONENTS chrono date_time filesystem regex serialization signals system thread log REQUIRED)
 find_package(ZLIB REQUIRED)
 
 include_directories(
@@ -116,8 +108,6 @@ include_directories(
     ${ZLIB_INCLUDE_DIR}
     ${CMAKE_SOURCE_DIR}
     GG
-    log4cpp
-    OpenSteer/include
 )
 
 if (FREEORION_RELEASE)
@@ -247,8 +237,7 @@ set (freeorioncommon_SOURCE
     util/StringTable.cpp
     util/VarText.cpp
     util/XMLDoc.cpp
-    util/Version.cpp.in
-    ${CMAKE_BINARY_DIR}/util/Version.cpp
+    util/Version.cpp
 )
 
 if (NOT WIN32)
@@ -261,6 +250,8 @@ add_library(freeorioncommon
     ${freeorioncommon_HEADER}
     ${freeorioncommon_SOURCE}
 )
+
+add_dependencies(freeorioncommon freeorionversion)
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
     set_property(
@@ -275,7 +266,6 @@ target_link_libraries(freeorioncommon
     ${Boost_LIBRARIES}
     ${ZLIB_LIBRARIES}
     ${OPENGL_LIBRARIES}
-    log4cpp
 )
 
 set_target_properties(freeorioncommon
@@ -293,7 +283,6 @@ endif ()
 ########################################
 # Recurse Into Sources                 #
 ########################################
-add_subdirectory(log4cpp)
 add_subdirectory(parse)
 add_subdirectory(server)
 add_subdirectory(client/AI)

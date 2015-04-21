@@ -5,6 +5,7 @@
 #include "Enums.h"
 #include "../util/Export.h"
 
+#include <boost/algorithm/string/case_conv.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/serialization/nvp.hpp>
 #include <boost/iterator/filter_iterator.hpp>
@@ -124,9 +125,13 @@ public:
         m_native(params.native),
         m_can_colonize(params.can_colonize),
         m_can_produce_ships(params.can_produce_ships),
-        m_tags(tags),
+        m_tags(),
         m_graphic(graphic)
-    { Init(); }
+    { 
+        Init(); 
+        for ( std::set< std::string >::iterator tag_it = tags.begin(); tag_it != tags.end(); tag_it++)
+            m_tags.insert(boost::to_upper_copy<std::string>(*tag_it));
+    }
 
     ~Species();
     //@}
@@ -293,6 +298,11 @@ public:
 
     /** clears all species opinion data */
     void    ClearSpeciesOpinions();
+
+    void    UpdatePopulationCounter();
+
+    std::map<std::string, std::map<int, float> >&       SpeciesObjectPopulations(int encoding_empire = ALL_EMPIRES);
+    std::map<std::string, std::map<std::string, int> >& SpeciesShipsDestroyed(int encoding_empire = ALL_EMPIRES);
     //@}
 
 private:
@@ -306,6 +316,9 @@ private:
     std::map<std::string, Species*>                         m_species;
     std::map<std::string, std::map<int, double> >           m_species_empire_opinions;
     std::map<std::string, std::map<std::string, double> >   m_species_species_opinions;
+
+    std::map<std::string, std::map<int, float> >            m_species_object_populations;
+    std::map<std::string, std::map<std::string, int> >      m_species_species_ships_destroyed;
 
     static SpeciesManager* s_instance;
 

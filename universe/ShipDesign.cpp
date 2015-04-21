@@ -18,6 +18,8 @@
 #include <cfloat>
 #include <boost/filesystem/fstream.hpp>
 
+using boost::io::str;
+
 namespace {
     const bool CHEAP_AND_FAST_SHIP_PRODUCTION = false;    // makes all ships cost 1 PP and take 1 turn to build
 }
@@ -188,6 +190,10 @@ void PartType::Init(const std::vector<boost::shared_ptr<Effect::EffectsGroup> >&
         case PC_FIGHTERS:
             m_effects.push_back(IncreaseMeter(METER_DAMAGE,         m_name, m_capacity, false));
             break;
+        case PC_COLONY:
+        case PC_TROOPS:
+            m_effects.push_back(IncreaseMeter(METER_CAPACITY,       m_name, m_capacity, false));
+            break;
         case PC_SHIELD:
             m_effects.push_back(IncreaseMeter(METER_MAX_SHIELD,     m_capacity));
             break;
@@ -233,6 +239,29 @@ PartType::~PartType()
 
 float PartType::Capacity() const
 { return m_capacity; }
+
+const std::string PartType::CapacityDescription() const {
+    std::string desc_string;
+    float d = Capacity();
+
+    switch (m_class) {
+    case PC_FUEL:
+    case PC_TROOPS:
+    case PC_COLONY:
+        desc_string += UserString("PART_DESC_CAPACITY");
+        break;
+    case PC_SHIELD:
+        desc_string = UserString("PART_DESC_SHIELD_STRENGTH");
+        break;
+    case PC_DETECTION:
+        desc_string = UserString("PART_DESC_DETECTION");
+        break;
+    default:
+        desc_string = UserString("PART_DESC_STRENGTH");
+        break;
+    }
+    return str(FlexibleFormat(desc_string) % d);
+}
 
 bool PartType::CanMountInSlotType(ShipSlotType slot_type) const {
     if (INVALID_SHIP_SLOT_TYPE == slot_type)
@@ -585,8 +614,6 @@ int ShipDesign::ProductionTime(int empire_id, int location_id) const {
 }
 
 bool ShipDesign::CanColonize() const {
-    //if (m_colony_capacity > 0.0)
-    //    return true;
     for (std::vector<std::string>::const_iterator it = m_parts.begin(); it != m_parts.end(); ++it) {
         const std::string& part_name = *it;
         if (part_name.empty())
