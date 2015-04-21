@@ -1,6 +1,6 @@
-from inspect import getmembers, getdoc, isroutine
-import json
 import os
+from inspect import getmembers, getdoc, isroutine
+from generate_stub import make_stub
 
 data = []
 
@@ -108,8 +108,7 @@ switcher = {
 }
 
 
-def inspect(obj, *instances):
-    module_name = os.path.join(os.path.dirname(__file__), '%s.json' % obj.__name__)
+def _inspect(obj, *instances):
     for name, member in getmembers(obj):
         function = switcher.get(str(type(member)), None)
         if function:
@@ -124,7 +123,10 @@ def inspect(obj, *instances):
         except Exception as e:
             print "Error inspecting:", type(instance), type(e), e
             from traceback import print_exc
+    return data
 
-    print 'Saving data to %s' % module_name
-    with open(module_name, 'w') as f:
-        json.dump(data, f, indent=4)
+
+def inspect(obj, *instances):
+    data = _inspect(obj, *instances)
+    result_path = os.path.join(os.path.dirname(__file__), 'result', '%s.py' % obj.__name__)
+    make_stub(data, result_path)

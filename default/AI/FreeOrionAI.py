@@ -1,13 +1,13 @@
 """ The FreeOrionAI module contains the methods which can be made by the C AIInterface;
 these methods in turn activate other portions of the python AI code."""
-
 import pickle  # Python object serialization library
 import sys
 import random
-from freeorion_debug.listeners import listener
-from freeorion_debug.interactive_shell import handle_debug_chat
-from freeorion_debug import extend_free_orion_AI_interface  # update fo in import
-from freeorion_debug import handlers
+
+# IMPORTANT! this import also execute python code to update freeOrionAIInterface interface,
+# removing this import will brake AI in unexpected locations.
+from freeorion_debug import handle_debug_chat, listener
+
 import freeOrionAIInterface as fo  # interface used to interact with FreeOrion AI client  # pylint: disable=import-error
 # pylint: disable=relative-import
 import AIstate
@@ -170,11 +170,7 @@ def generateOrders():  # pylint: disable=invalid-name
 
     foAIstate.refresh()  # checks exploration border & clears roles/missions of missing fleets & updates fleet locs & threats
     foAIstate.report_system_threats()
-    # ...missions
-    # ...demands/priorities
     print("Calling AI Modules")
-    # call AI modules
-
 
     action_list = [PriorityAI.calculate_priorities,
                    ExplorationAI.assign_scouts_to_explore_systems,

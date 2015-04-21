@@ -21,8 +21,10 @@ HANDLERS = 'handlers'
 flat_options = odict()
 sectioned_options = odict()
 
+
 def check_bool(option):
     return str(option).lower() in ["1", "on", "true", "yes"]
+
 
 def get_option_dict():
     """
@@ -33,7 +35,8 @@ def get_option_dict():
     if not flat_options:
         _parse_options()
     return flat_options
-    
+
+
 def get_sectioned_option_dict():
     """
     Return options for AI
@@ -43,7 +46,8 @@ def get_sectioned_option_dict():
     if not sectioned_options:
         _parse_options()
     return sectioned_options
-    
+
+
 def _parse_options():
     # get defaults; check if don't already exist and can write
     default_file = _get_default_file_path()
@@ -76,6 +80,7 @@ def _parse_options():
             flat_options[k] = v
             sectioned_options[section][k] = v
 
+
 def _get_AI_folder_path():
     # hack to allow lunch this code separately to dump default config
     try:
@@ -84,6 +89,7 @@ def _get_AI_folder_path():
         print "Cant get options file", e
         return None
 
+
 def _get_option_file_name():
     # hack to allow lunch this code separately to dump default config
     try:
@@ -91,6 +97,7 @@ def _get_option_file_name():
     except AttributeError as e:
         print "Cant get options file", e
         return None
+
 
 def _get_option_file_path():
     # hack to allow lunch this code separately to dump default config
@@ -101,9 +108,11 @@ def _get_option_file_path():
     else:
         return None
 
+
 def _get_default_file_path():
     # TODO: determine more robust treatment in case ResourceDir is not writable by user
     return os.path.join(_get_AI_folder_path() or ".", DEFAULT_CONFIG_FILE)
+
 
 def _get_preset_default_ai_options():
     """

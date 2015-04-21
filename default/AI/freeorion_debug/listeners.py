@@ -8,7 +8,6 @@ handlers = {
 }
 
 
-
 def _register(function_name, handler,  is_post_handler):
     handlers.setdefault(function_name, [[], []])[is_post_handler].append(handler)
     print 'Register "%s" %s "%s" execution' % (
@@ -44,4 +43,3 @@ def listener(funct):
         [x(res, *args, **kwargs) for x in post]
         return res
     return wrapper
-

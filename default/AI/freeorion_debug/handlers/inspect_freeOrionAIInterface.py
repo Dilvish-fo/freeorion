@@ -1,6 +1,8 @@
+
 import PlanetUtilsAI
 import freeOrionAIInterface as fo
-from interface_inspector import inspect
+
+from freeorion_debug.ide_tools import inspect
 
 
 def inspect_FreeOrionAIInterface():
@@ -59,7 +61,7 @@ def inspect_FreeOrionAIInterface():
         empire.getSitRep(0),
         universe.getBuilding(building),
     )
-    exit(1)  # exit game to main menu
+    exit(1)  # exit game to main menu no need to play anymore.
 
 from freeorion_debug.listeners import register_pre_handler
 

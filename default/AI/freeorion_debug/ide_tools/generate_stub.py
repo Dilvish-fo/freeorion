@@ -1,8 +1,5 @@
 from itertools import groupby
-import json
 from operator import itemgetter
-import os
-
 from parse_docs import Docs
 
 
@@ -110,10 +107,8 @@ known_types = {'boost_class',
                'instance'}
 
 
-def make_stub(path):
+def make_stub(data, result_path):
     groups = {}
-    with open(path) as f:
-        data = json.load(f)
     for info in data:
         if info['type'] in known_types:
             groups.setdefault(info['type'], []).append(info)
@@ -169,13 +164,6 @@ def make_stub(path):
     for function in sorted(groups['function'], key=itemgetter('name')):
         res.append(handle_function(function))
 
-    stub_path = '_%s' % os.path.basename(path.replace('.json', '.py'))
-    with open(stub_path, 'w') as f:
+    with open(result_path, 'w') as f:
         f.write('\n\n\n'.join(res))
         f.write('\n')
-
-
-
-
-make_stub('freeorion.json')
-make_stub('freeOrionAIInterface.json')
