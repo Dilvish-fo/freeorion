@@ -14,9 +14,9 @@ import statistics
 
 
 import os
-import sys
-sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..', 'inspect_interface'))
-from interface_inspector import inspect
+# import sys
+# sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..', 'inspect_interface'))
+# from interface_inspector import inspect
 
 def error_report():
     """
@@ -121,8 +121,8 @@ def create_universe(psd_map):
     spec_list = fo.load_item_spec_list("preunlocked_items.txt")
     monster_plan_list = fo.load_monster_fleet_plan_list("space_monster_spawn_fleets.txt")
 
-    inspect(fo, fo.get_galaxy_setup_data(), system_positions, system_positions[0],
-            fleet_plan_list[0], spec_list[0], monster_plan_list[0])
+    # inspect(fo, fo.get_galaxy_setup_data(), system_positions, system_positions[0],
+    #         fleet_plan_list[0], spec_list[0], monster_plan_list[0])
 
     if error_list:
         print "Python Universe Generator completed with errors"

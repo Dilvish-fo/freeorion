@@ -3,7 +3,7 @@ import json
 from operator import itemgetter
 import os
 
-from default.inspect_interface.parse_docs import Docs
+from parse_docs import Docs
 
 
 def handle_class(info):
@@ -169,10 +169,12 @@ def make_stub(path):
     for function in sorted(groups['function'], key=itemgetter('name')):
         res.append(handle_function(function))
 
-    stub_path =os.path.basename(path.replace('.json', '.py'))
+    stub_path = '_%s' % os.path.basename(path.replace('.json', '.py'))
     with open(stub_path, 'w') as f:
         f.write('\n\n\n'.join(res))
         f.write('\n')
+
+
 
 
 make_stub('freeorion.json')

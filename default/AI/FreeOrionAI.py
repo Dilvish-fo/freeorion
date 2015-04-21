@@ -7,6 +7,7 @@ import random
 from freeorion_debug.listeners import listener
 from freeorion_debug.interactive_shell import handle_debug_chat
 from freeorion_debug import extend_free_orion_AI_interface  # update fo in import
+from freeorion_debug import handlers
 import freeOrionAIInterface as fo  # interface used to interact with FreeOrion AI client  # pylint: disable=import-error
 # pylint: disable=relative-import
 import AIstate
