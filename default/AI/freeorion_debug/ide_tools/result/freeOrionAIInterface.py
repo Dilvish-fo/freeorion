@@ -1577,6 +1577,10 @@ class hullType(object):
         return ShipSlotVec()
 
     @property
+    def speed(self):
+        return float()
+
+    @property
     def starlaneSpeed(self):
         return float()
 
@@ -3443,7 +3447,7 @@ class shipPartClass(Enum):
     stealth = None  # shipPartClass(8, "stealth")
     fuel = None  # shipPartClass(9, "fuel")
     colony = None  # shipPartClass(10, "colony")
-    starlaneSpeed = None  # shipPartClass(11, "starlaneSpeed")
+    speed = None  # shipPartClass(11, "speed")
     general = None  # shipPartClass(12, "general")
     bombard = None  # shipPartClass(13, "bombard")
     industry = None  # shipPartClass(14, "industry")
@@ -3462,7 +3466,7 @@ shipPartClass.detection = shipPartClass(7, "detection")
 shipPartClass.stealth = shipPartClass(8, "stealth")
 shipPartClass.fuel = shipPartClass(9, "fuel")
 shipPartClass.colony = shipPartClass(10, "colony")
-shipPartClass.starlaneSpeed = shipPartClass(11, "starlaneSpeed")
+shipPartClass.speed = shipPartClass(11, "speed")
 shipPartClass.general = shipPartClass(12, "general")
 shipPartClass.bombard = shipPartClass(13, "bombard")
 shipPartClass.industry = shipPartClass(14, "industry")
