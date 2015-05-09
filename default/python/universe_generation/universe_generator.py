@@ -19,7 +19,6 @@ def error_report():
     """
     return error_list
 
-
 def create_universe(psd_map):
     """
     Main universe generation function invoked from C++ code.

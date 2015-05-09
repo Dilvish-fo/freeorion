@@ -39,6 +39,7 @@ don't commit logger wrapped function to repo.
 
 """
 
+from functools import wraps
 import freeOrionAIInterface as fo
 from freeorion_tools import dict_from_map
 
@@ -58,6 +59,7 @@ SHIP_DESIGN = 'D'
 
 
 def to_map(method):
+    @wraps(method)
     def wrapper(*args):
         return dict_from_map(method(*args))
     return wrapper
