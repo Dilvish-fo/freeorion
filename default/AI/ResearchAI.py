@@ -71,7 +71,7 @@ def priority_one(tech_name=""):
     return 1.0
 
 
-def conditional_priority(func_if_true, func_if_false, cond_func=None, this_object=None, this_attr=None, tech_name=""):
+def conditional_priority(func_if_true, func_if_false, cond_func=None, this_object=None, this_attr=None):
     """
     returns a priority dependent on a condition, either a function or an object attribute
     :type func_if_true: () -> bool
@@ -82,15 +82,20 @@ def conditional_priority(func_if_true, func_if_false, cond_func=None, this_objec
     :type tech_name:str
     :rtype float
     """
-    if cond_func is None:
-        if this_object is not None:
-            cond_func = partial(getattr, this_object, this_attr)
+    def get_priority(tech_name=""):
+        if cond_func:
+            _cond_func = cond_func
         else:
-            return priority_low()
-    if cond_func():
-        return func_if_true(tech_name)
-    else:
-        return func_if_false(tech_name)
+            if this_object is not None:
+                _cond_func = partial(getattr, this_object, this_attr)
+            else:
+                return priority_low()
+
+        if _cond_func():
+            return func_if_true(tech_name=tech_name)
+        else:
+            return func_if_false(tech_name=tech_name)
+    return get_priority
 
 MIL_IDX = 0
 TROOP_IDX = 1
@@ -398,18 +403,15 @@ def generate_research_orders():
         tech_handlers = (
             (
                 AIDependencies.PRO_MICROGRAV_MAN,
-                partial(conditional_priority, partial(const_priority, 3.5), priority_low, None, ColonisationAI,
-                        'got_ast')
+                conditional_priority(partial(const_priority, 3.5), priority_low, None, ColonisationAI, 'got_ast')
             ),
             (
                 AIDependencies.PRO_ORBITAL_GEN,
-                partial(conditional_priority, partial(const_priority, 3.0), priority_low, None, ColonisationAI,
-                        'got_gg')
+                conditional_priority(partial(const_priority, 3.0), priority_low, None, ColonisationAI, 'got_gg')
             ),
             (
                 AIDependencies.PRO_SINGULAR_GEN,
-                partial(conditional_priority,
-                        partial(const_priority, 3.0),
+                conditional_priority(partial(const_priority, 3.0),
                         priority_low, partial(has_star,
                                               fo.starType.blackHole))
             ),
@@ -419,8 +421,8 @@ def generate_research_orders():
             ),
             (
                 AIDependencies.LRN_XENOARCH,
-                priority_low if foAI.foAIstate.aggression < fo.aggression.typical else partial(
-                    conditional_priority,
+                priority_low if foAI.foAIstate.aggression < fo.aggression.typical else
+                    conditional_priority(
                     partial(const_priority, 5.0),
                     priority_low, None,
                     ColonisationAI, 'gotRuins')
@@ -437,8 +439,7 @@ def generate_research_orders():
             ),
             (
                 AIDependencies.NEST_DOMESTICATION_TECH,
-                priority_zero if foAI.foAIstate.aggression < fo.aggression.typical else partial(
-                    conditional_priority,
+                priority_zero if foAI.foAIstate.aggression < fo.aggression.typical else conditional_priority(
                     partial(const_priority, 3.0),
                     priority_low, None, ColonisationAI,
                     'got_nest')
