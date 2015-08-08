@@ -31,20 +31,9 @@ def get_research_index():
         research_index += 1
     return research_index
 
-
-def const_priority(this_const):
-    """
-    Returns function that returns constant result.
-    :type this_const: float
-    :rtype function
-    """
-    def wrapper(tech_name=""):
-        return this_const
-    return wrapper
-
-priority_zero = const_priority(0.0)
-priority_low = const_priority(0.1)
-priority_one = const_priority(1.0)
+# Priorities
+ZERO = 0.0
+LOW = 0.1
 
 # TODO: Move this functions to ColonisationAI
 have_asteroids = partial(attrgetter('got_ast'), ColonisationAI)
@@ -101,7 +90,7 @@ def ship_usefulness(base_priority_func, designer=None):
         useful = 0.0
         for this_designer in designer_list:
             useful = max(useful, get_ship_tech_usefulness(tech_name, this_designer))
-        return useful * base_priority_func()
+        return useful * execute(base_priority_func)
     return wrapper
 
 
@@ -308,11 +297,11 @@ def get_priority(tech_name):
     primary_prefix = name_parts[0]
     secondary_prefix = '_'.join(name_parts[:2])
     if tech_name in priority_funcs:
-        return priority_funcs[tech_name](tech_name=tech_name)
+        return execute(priority_funcs[tech_name], tech_name=tech_name)
     elif secondary_prefix in secondary_prefix_priority_funcs:
-        return secondary_prefix_priority_funcs[secondary_prefix](tech_name=tech_name)
+        return execute(secondary_prefix_priority_funcs[secondary_prefix], tech_name=tech_name)
     elif primary_prefix in primary_prefix_priority_funcs:
-        return primary_prefix_priority_funcs[primary_prefix](tech_name=tech_name)
+        return execute(primary_prefix_priority_funcs[primary_prefix], tech_name=tech_name)
 
     # default priority for unseen techs
     if not tech_is_complete(tech_name):
@@ -365,25 +354,25 @@ def tech_time_sort_key(tech_name):
 
 
 tech_handlers = (
-    (Dep.PRO_MICROGRAV_MAN, conditional_priority(3.5, priority_low, have_asteroids)),
-    (Dep.PRO_ORBITAL_GEN, conditional_priority(3.0, priority_low, have_gas_giant)),
-    (Dep.PRO_SINGULAR_GEN, conditional_priority(3.0, priority_low, partial(has_star, fo.starType.blackHole))),
+    (Dep.PRO_MICROGRAV_MAN, conditional_priority(3.5, LOW, have_asteroids)),
+    (Dep.PRO_ORBITAL_GEN, conditional_priority(3.0, LOW, have_gas_giant)),
+    (Dep.PRO_SINGULAR_GEN, conditional_priority(3.0, LOW, partial(has_star, fo.starType.blackHole))),
     (Dep.GRO_XENO_GENETICS, get_xeno_genetics_priority),
-    (Dep.LRN_XENOARCH, conditional_priority(priority_low, conditional_priority(5.0, priority_low, have_ruins)), foAI.foAIstate.aggression < fo.aggression.typical),
+    (Dep.LRN_XENOARCH, conditional_priority(LOW, conditional_priority(5.0, LOW, have_ruins)), foAI.foAIstate.aggression < fo.aggression.typical),
     (Dep.LRN_ART_BLACK_HOLE, get_artificial_black_hole_priority),
-    (Dep.GRO_GENOME_BANK, priority_low),
-    (Dep.CON_CONC_CAMP, priority_zero),
-    (Dep.NEST_DOMESTICATION_TECH, conditional_priority(priority_zero, conditional_priority(3.0, priority_low, have_nest)), foAI.foAIstate.aggression < fo.aggression.typical),
-    (Dep.UNRESEARCHABLE_TECHS, const_priority(-1.0)),
-    (Dep.UNUSED_TECHS, priority_zero),
-    (Dep.THEORY_TECHS, priority_zero),
+    (Dep.GRO_GENOME_BANK, LOW),
+    (Dep.CON_CONC_CAMP, ZERO),
+    (Dep.NEST_DOMESTICATION_TECH, conditional_priority(ZERO, conditional_priority(3.0, LOW, have_nest)), foAI.foAIstate.aggression < fo.aggression.typical),
+    (Dep.UNRESEARCHABLE_TECHS, -1.0),
+    (Dep.UNUSED_TECHS, ZERO),
+    (Dep.THEORY_TECHS, ZERO),
     (Dep.PRODUCTION_BOOST_TECHS, if_dict(ColonisationAI.empire_status, 'industrialists', 0.6, 1.5)),
     (Dep.RESEARCH_BOOST_TECHS, if_tech_target(get_initial_research_target(), 2.1, 2.5)),
-    (Dep.PRODUCTION_AND_RESEARCH_BOOST_TECHS, const_priority(2.5)),
+    (Dep.PRODUCTION_AND_RESEARCH_BOOST_TECHS, 2.5),
     (Dep.POPULATION_BOOST_TECHS, get_population_boost_priority),
     (Dep.SUPPLY_BOOST_TECHS, if_tech_target(Dep.SUPPLY_BOOST_TECHS[0], 1.0, 0.5)),
-    (Dep.METER_CHANGE_BOOST_TECHS, const_priority(1.0)),
-    (Dep.DETECTION_TECHS, const_priority(0.5)),
+    (Dep.METER_CHANGE_BOOST_TECHS, 1.0),
+    (Dep.DETECTION_TECHS, 0.5),
     (Dep.STEALTH_TECHS, get_stealth_priority),
     (Dep.DAMAGE_CONTROL_TECHS, if_enemies(0.1, 0.5)),
     (Dep.HULL_TECHS, get_hull_priority),
@@ -392,7 +381,7 @@ tech_handlers = (
     (Dep.FUEL_TECHS, ship_usefulness(if_dict(choices, 'fuel', 0.1, 1.0), None)),
     (Dep.SHIELD_TECHS, ship_usefulness(if_enemies(0.1, 0.1), MIL_IDX)),
     (Dep.TROOP_POD_TECHS, ship_usefulness(if_enemies(0.1, 0.3), TROOP_IDX)),
-    (Dep.COLONY_POD_TECHS, ship_usefulness(const_priority(0.5), COLONY_IDX))
+    (Dep.COLONY_POD_TECHS, ship_usefulness(0.5, COLONY_IDX))
 )
 
 
@@ -406,7 +395,7 @@ def generate_research_orders():
     # keys are "PREFIX1", as in "DEF" or "SPY"
     if not primary_prefix_priority_funcs:
         primary_prefix_priority_funcs.update({
-            Dep.DEFENSE_TECHS_PREFIX: const_priority(2.0) if DEFENSIVE else if_enemies(0.2, 0.1)
+            Dep.DEFENSE_TECHS_PREFIX: 2.0 if DEFENSIVE else if_enemies(0.2, 0.1)
             })
 
     # keys are "PREFIX1_PREFIX2", as in "SHP_WEAPON"
