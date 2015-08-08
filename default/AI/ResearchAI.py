@@ -41,6 +41,8 @@ have_gas_giant = partial(attrgetter('got_gg'), ColonisationAI)
 have_ruins = partial(attrgetter('gotRuins'), ColonisationAI)
 have_nest = partial(attrgetter('got_nest'), ColonisationAI)
 
+def has_low_aggression():
+    return foAI.foAIstate.aggression < fo.aggression.typical
 
 def conditional_priority(func_if_true, func_if_false, cond_func):
     """
@@ -51,7 +53,7 @@ def conditional_priority(func_if_true, func_if_false, cond_func):
     :rtype float
     """
     def get_priority(tech_name=""):
-        if execute(cond_func):
+        if cond_func():
             return execute(func_if_true, tech_name=tech_name)
         else:
             return execute(func_if_false, tech_name=tech_name)
@@ -353,38 +355,6 @@ def tech_time_sort_key(tech_name):
     return research_reqs.get(tech_name, ([], 0, 0, 0))[REQS_TIME_IDX]
 
 
-tech_handlers = (
-    (Dep.PRO_MICROGRAV_MAN, conditional_priority(3.5, LOW, have_asteroids)),
-    (Dep.PRO_ORBITAL_GEN, conditional_priority(3.0, LOW, have_gas_giant)),
-    (Dep.PRO_SINGULAR_GEN, conditional_priority(3.0, LOW, partial(has_star, fo.starType.blackHole))),
-    (Dep.GRO_XENO_GENETICS, get_xeno_genetics_priority),
-    (Dep.LRN_XENOARCH, conditional_priority(LOW, conditional_priority(5.0, LOW, have_ruins)), foAI.foAIstate.aggression < fo.aggression.typical),
-    (Dep.LRN_ART_BLACK_HOLE, get_artificial_black_hole_priority),
-    (Dep.GRO_GENOME_BANK, LOW),
-    (Dep.CON_CONC_CAMP, ZERO),
-    (Dep.NEST_DOMESTICATION_TECH, conditional_priority(ZERO, conditional_priority(3.0, LOW, have_nest)), foAI.foAIstate.aggression < fo.aggression.typical),
-    (Dep.UNRESEARCHABLE_TECHS, -1.0),
-    (Dep.UNUSED_TECHS, ZERO),
-    (Dep.THEORY_TECHS, ZERO),
-    (Dep.PRODUCTION_BOOST_TECHS, if_dict(ColonisationAI.empire_status, 'industrialists', 0.6, 1.5)),
-    (Dep.RESEARCH_BOOST_TECHS, if_tech_target(get_initial_research_target(), 2.1, 2.5)),
-    (Dep.PRODUCTION_AND_RESEARCH_BOOST_TECHS, 2.5),
-    (Dep.POPULATION_BOOST_TECHS, get_population_boost_priority),
-    (Dep.SUPPLY_BOOST_TECHS, if_tech_target(Dep.SUPPLY_BOOST_TECHS[0], 1.0, 0.5)),
-    (Dep.METER_CHANGE_BOOST_TECHS, 1.0),
-    (Dep.DETECTION_TECHS, 0.5),
-    (Dep.STEALTH_TECHS, get_stealth_priority),
-    (Dep.DAMAGE_CONTROL_TECHS, if_enemies(0.1, 0.5)),
-    (Dep.HULL_TECHS, get_hull_priority),
-    (Dep.ARMOR_TECHS, ship_usefulness(if_enemies(0.1, 0.1), MIL_IDX)),
-    (Dep.ENGINE_TECHS, ship_usefulness(if_dict(choices, 'engine', 0.1, 0.6), None)),
-    (Dep.FUEL_TECHS, ship_usefulness(if_dict(choices, 'fuel', 0.1, 1.0), None)),
-    (Dep.SHIELD_TECHS, ship_usefulness(if_enemies(0.1, 0.1), MIL_IDX)),
-    (Dep.TROOP_POD_TECHS, ship_usefulness(if_enemies(0.1, 0.3), TROOP_IDX)),
-    (Dep.COLONY_POD_TECHS, ship_usefulness(0.5, COLONY_IDX))
-)
-
-
 def generate_research_orders():
     """generate research orders"""
 
@@ -405,6 +375,36 @@ def generate_research_orders():
             })
 
     if not priority_funcs:
+        tech_handlers = (
+            (Dep.PRO_MICROGRAV_MAN, conditional_priority(3.5, LOW, have_asteroids)),
+            (Dep.PRO_ORBITAL_GEN, conditional_priority(3.0, LOW, have_gas_giant)),
+            (Dep.PRO_SINGULAR_GEN, conditional_priority(3.0, LOW, partial(has_star, fo.starType.blackHole))),
+            (Dep.GRO_XENO_GENETICS, get_xeno_genetics_priority),
+            (Dep.LRN_XENOARCH, conditional_priority(LOW, conditional_priority(5.0, LOW, have_ruins), has_low_aggression)),
+            (Dep.LRN_ART_BLACK_HOLE, get_artificial_black_hole_priority),
+            (Dep.GRO_GENOME_BANK, LOW),
+            (Dep.CON_CONC_CAMP, ZERO),
+            (Dep.NEST_DOMESTICATION_TECH, conditional_priority(ZERO, conditional_priority(3.0, LOW, have_nest), has_low_aggression)),
+            (Dep.UNRESEARCHABLE_TECHS, -1.0),
+            (Dep.UNUSED_TECHS, ZERO),
+            (Dep.THEORY_TECHS, ZERO),
+            (Dep.PRODUCTION_BOOST_TECHS, if_dict(ColonisationAI.empire_status, 'industrialists', 0.6, 1.5)),
+            (Dep.RESEARCH_BOOST_TECHS, if_tech_target(get_initial_research_target(), 2.1, 2.5)),
+            (Dep.PRODUCTION_AND_RESEARCH_BOOST_TECHS, 2.5),
+            (Dep.POPULATION_BOOST_TECHS, get_population_boost_priority),
+            (Dep.SUPPLY_BOOST_TECHS, if_tech_target(Dep.SUPPLY_BOOST_TECHS[0], 1.0, 0.5)),
+            (Dep.METER_CHANGE_BOOST_TECHS, 1.0),
+            (Dep.DETECTION_TECHS, 0.5),
+            (Dep.STEALTH_TECHS, get_stealth_priority),
+            (Dep.DAMAGE_CONTROL_TECHS, if_enemies(0.1, 0.5)),
+            (Dep.HULL_TECHS, get_hull_priority),
+            (Dep.ARMOR_TECHS, ship_usefulness(if_enemies(0.1, 0.1), MIL_IDX)),
+            (Dep.ENGINE_TECHS, ship_usefulness(if_dict(choices, 'engine', 0.1, 0.6), None)),
+            (Dep.FUEL_TECHS, ship_usefulness(if_dict(choices, 'fuel', 0.1, 1.0), None)),
+            (Dep.SHIELD_TECHS, ship_usefulness(if_enemies(0.1, 0.1), MIL_IDX)),
+            (Dep.TROOP_POD_TECHS, ship_usefulness(if_enemies(0.1, 0.3), TROOP_IDX)),
+            (Dep.COLONY_POD_TECHS, ship_usefulness(0.5, COLONY_IDX))
+        )
 
         for k, v in tech_handlers:
             if isinstance(k, basestring):
