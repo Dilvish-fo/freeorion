@@ -62,10 +62,10 @@ def conditional_priority(func_if_true, func_if_false, cond_func):
     :rtype float
     """
     def get_priority(tech_name=""):
-        if cond_func():
-            return func_if_true(tech_name=tech_name)
+        if execute(cond_func):
+            return execute(func_if_true, tech_name=tech_name)
         else:
-            return func_if_false(tech_name=tech_name)
+            return execute(func_if_false, tech_name=tech_name)
     return get_priority
 
 MIL_IDX = 0
@@ -82,8 +82,15 @@ def get_main_ship_designer_list():
     return MAIN_SHIP_DESIGNER_LIST
 
 
-def ship_usefulness(base_priority_func, designer=None):
+def execute(value, tech_name=None):
+    """
+    If value is callable return result of its call,
+    otherwise return value.
+    """
+    return value(tech_name=tech_name) if callable(value) else value
 
+
+def ship_usefulness(base_priority_func, designer=None):
     def wrapper(tech_name=""):
         if designer is None:
             designer_list = get_main_ship_designer_list()
@@ -105,22 +112,22 @@ def has_star(star_type):
 
 
 def if_enemies(false_val, true_val):
-    return conditional_priority(const_priority(true_val),
-                                const_priority(false_val),
+    return conditional_priority(true_val,
+                                false_val,
                                 cond_func=lambda: foAI.foAIstate.misc.get('enemies_sighted', {}))
 
 
 def if_dict(this_dict, this_key, false_val, true_val):
-    return conditional_priority(const_priority(true_val),
-                                const_priority(false_val),
+    return conditional_priority(true_val,
+                                false_val,
                                 cond_func=lambda: this_dict.get(this_key, False))
 
 
 
 def if_tech_target(tech_target, false_val, true_val):
     return conditional_priority(
-        const_priority(true_val),
-        const_priority(false_val),
+        true_val,
+        false_val,
         cond_func=lambda: tech_is_complete(tech_target))
 
 
@@ -358,15 +365,15 @@ def tech_time_sort_key(tech_name):
 
 
 tech_handlers = (
-    (Dep.PRO_MICROGRAV_MAN, conditional_priority(const_priority(3.5), priority_low, have_asteroids)),
-    (Dep.PRO_ORBITAL_GEN, conditional_priority(const_priority(3.0), priority_low, have_gas_giant)),
-    (Dep.PRO_SINGULAR_GEN, conditional_priority(const_priority(3.0), priority_low, partial(has_star, fo.starType.blackHole))),
+    (Dep.PRO_MICROGRAV_MAN, conditional_priority(3.5, priority_low, have_asteroids)),
+    (Dep.PRO_ORBITAL_GEN, conditional_priority(3.0, priority_low, have_gas_giant)),
+    (Dep.PRO_SINGULAR_GEN, conditional_priority(3.0, priority_low, partial(has_star, fo.starType.blackHole))),
     (Dep.GRO_XENO_GENETICS, get_xeno_genetics_priority),
-    (Dep.LRN_XENOARCH, conditional_priority(priority_low, conditional_priority(const_priority(5.0), priority_low, have_ruins)), lambda x: foAI.foAIstate.aggression < fo.aggression.typical),
+    (Dep.LRN_XENOARCH, conditional_priority(priority_low, conditional_priority(5.0, priority_low, have_ruins)), foAI.foAIstate.aggression < fo.aggression.typical),
     (Dep.LRN_ART_BLACK_HOLE, get_artificial_black_hole_priority),
     (Dep.GRO_GENOME_BANK, priority_low),
-    (Dep.CON_CONC_CAMP, partial(priority_zero)),
-    (Dep.NEST_DOMESTICATION_TECH, conditional_priority(priority_zero, conditional_priority(const_priority(3.0), priority_low, have_nest)), lambda: foAI.foAIstate.aggression < fo.aggression.typical),
+    (Dep.CON_CONC_CAMP, priority_zero),
+    (Dep.NEST_DOMESTICATION_TECH, conditional_priority(priority_zero, conditional_priority(3.0, priority_low, have_nest)), foAI.foAIstate.aggression < fo.aggression.typical),
     (Dep.UNRESEARCHABLE_TECHS, const_priority(-1.0)),
     (Dep.UNUSED_TECHS, priority_zero),
     (Dep.THEORY_TECHS, priority_zero),
