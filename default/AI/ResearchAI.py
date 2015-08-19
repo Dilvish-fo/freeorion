@@ -421,7 +421,7 @@ def init():
 
 
 def generate_research_orders():
-    """generate research orders"""
+    """Generate research orders."""
 
     # initializing priority functions here within generate_research_orders() to avoid import race
     if not choices.inited:
@@ -547,10 +547,10 @@ def generate_research_orders():
 
 
 def get_completed_techs():
-    """get completed and available for use techs"""
+    """Get completed and available for use techs."""
     return [tech for tech in fo.techs() if tech_is_complete(tech)]
 
 
 def get_research_queue_techs():
-    """ Get list of techs in research queue."""
+    """Get list of techs in research queue."""
     return [element.tech for element in fo.getEmpire().researchQueue]
