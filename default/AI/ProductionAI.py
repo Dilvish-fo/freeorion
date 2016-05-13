@@ -1382,6 +1382,76 @@ def generateProductionOrders():
         print
     fo.updateProductionQueue()
 
+# TODO: reassess priority scheme & whether high or low should go first;
+# note similar recent discussions regarding EffectsGroup priorities
+
+_MEDIUM_PRIORITY = 100
+
+def get_generic_building_priority(btype_name, loc):
+    return _MEDIUM_PRIORITY
+
+def get_generic_shipdesign_priority(design_id, loc):
+    return _MEDIUM_PRIORITY
+
+def get_priority_for_element(element):
+    base_priority = _MEDIUM_PRIORITY
+    if element.buildType == EnumsAI.AIEmpireProductionTypes.BT_BUILDING:
+        base_priority = get_priority_for_buildingtype(element.name, element.locationID)
+    else:
+        base_priority = get_priority_for_shipdesign(element.designID, element.locationID)
+    # TODO: adjust based on how close to completion, and other factors?
+
+building_prioritizers = {}
+
+def get_priority_for_buildingtype(btype_name, loc):
+    return building_prioritizers.get(btype_name, get_generic_building_priority)(btype_name, loc)
+
+def ship_prioritizer_military(design_id, loc):
+    return get_generic_shipdesign_priority(design_id, loc)
+
+def ship_prioritizer_military(design_id, loc):
+    return get_generic_shipdesign_priority(design_id, loc)
+
+def ship_prioritizer_scout(design_id, loc):
+    return get_generic_shipdesign_priority(design_id, loc)
+
+def ship_prioritizer_colony(design_id, loc):
+    return get_generic_shipdesign_priority(design_id, loc)
+
+def ship_prioritizer_outpost(design_id, loc):
+    return get_generic_shipdesign_priority(design_id, loc)
+
+def ship_prioritizer_troops(design_id, loc):
+    return get_generic_shipdesign_priority(design_id, loc)
+
+def ship_prioritizer_base_defense(design_id, loc):
+    return get_generic_shipdesign_priority(design_id, loc)
+
+def ship_prioritizer_base_troops(design_id, loc):
+    return get_generic_shipdesign_priority(design_id, loc)
+
+def ship_prioritizer_base_outpost(design_id, loc):
+    return get_generic_shipdesign_priority(design_id, loc)
+
+def ship_prioritizer_base_colony(design_id, loc):
+    return get_generic_shipdesign_priority(design_id, loc)
+
+shipdesign_prioritizers = {EnumsAI.AIShipRoleType.SHIP_ROLE_MILITARY_ATTACK : ship_prioritizer_military,
+                           EnumsAI.AIShipRoleType.SHIP_ROLE_CIVILIAN_EXPLORATION : ship_prioritizer_scout,
+                           EnumsAI.AIShipRoleType.SHIP_ROLE_CIVILIAN_COLONISATION : ship_prioritizer_colony,
+                           EnumsAI.AIShipRoleType.SHIP_ROLE_CIVILIAN_OUTPOST : ship_prioritizer_outpost,
+                           EnumsAI.AIShipRoleType.SHIP_ROLE_MILITARY_INVASION : ship_prioritizer_troops,
+                           EnumsAI.AIShipRoleType.SHIP_ROLE_MILITARY : ship_prioritizer_military,
+                           EnumsAI.AIShipRoleType.SHIP_ROLE_BASE_DEFENSE : ship_prioritizer_base_defense,
+                           EnumsAI.AIShipRoleType.SHIP_ROLE_BASE_INVASION : ship_prioritizer_base_troops,
+                           EnumsAI.AIShipRoleType.SHIP_ROLE_BASE_OUTPOST : ship_prioritizer_base_outpost,
+                           EnumsAI.AIShipRoleType.SHIP_ROLE_BASE_COLONISATION : ship_prioritizer_base_colony,
+                           }
+
+# TODO: Consider having the shipdesign roles and shipdesign prioritizers be provided by the ShipDesigner class
+def get_priority_for_shipdesign(design_id, loc):
+    return shipdesign_prioritizers.get(foAI.foAIstate.get_ship_role(design_id),
+                                       get_generic_shipdesign_priority)(design_id, loc)
 
 def build_ship_facilities(bld_name, best_pilot_facilities, top_locs=None):
     if top_locs is None:
