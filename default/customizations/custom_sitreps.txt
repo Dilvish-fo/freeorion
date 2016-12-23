@@ -202,56 +202,56 @@ ETA_NEXT_TURN
 
 // Reminder if you own a planet with a monster nest but haven't yet researched SHP_DOMESTIC_MONSTER
 
-// EffectsGroup
-//     scope = And [
-//         Planet
-//         Ownedby empire = Source.Owner
-//         Or [
-//             HasSpecial name = "KRAKEN_NEST_SPECIAL"
-//             HasSpecial name = "SNOWFLAKE_NEST_SPECIAL"
-//             HasSpecial name = "JUGGERNAUT_NEST_SPECIAL"
-//         ]
-//     ]
-//     activation = Not OwnerHasTech name = "SHP_DOMESTIC_MONSTER"
-//     effects =
-//         GenerateSitRepMessage
-//             message = "You own %planet%, with a monster nest, but haven't yet researched %tech%"
-//             label = "Custom_2"
-//             NoStringtableLookup
-//             icon = "icons/monsters/kraken-1.png"
-//             parameters = [
-//                 tag = "planet" data = Target.ID
-//                 tag = "tech" data = "SHP_DOMESTIC_MONSTER"
-//             ]
-//             empire = Source.Owner
+EffectsGroup
+    scope = And [
+        Planet
+        Ownedby empire = Source.Owner
+        Or [
+            HasSpecial name = "KRAKEN_NEST_SPECIAL"
+            HasSpecial name = "SNOWFLAKE_NEST_SPECIAL"
+            HasSpecial name = "JUGGERNAUT_NEST_SPECIAL"
+        ]
+    ]
+    activation = Not OwnerHasTech name = "SHP_DOMESTIC_MONSTER"
+    effects =
+        GenerateSitRepMessage
+            message = "You own %planet%, with a monster nest, but haven't yet researched %tech%"
+            label = "Custom_2"
+            NoStringtableLookup
+            icon = "icons/monsters/kraken-1.png"
+            parameters = [
+                tag = "planet" data = Target.ID
+                tag = "tech" data = "SHP_DOMESTIC_MONSTER"
+            ]
+            empire = Source.Owner
 
 
 
 // A Call to Arms
 // A prime candidate for being snoozed, but probably good to be periodically reminded about
-// EffectsGroup
-//     scope = And [
-//         Planet
-//         Species
-//         UnOwned
-//         MaxDefense high = 0
-//         ContainedBy And [
-//             System
-//             Not Contains Monster
-//         ]
-//         VisibleToEmpire empire = Source.Owner
-//     ]
-//     activation = Source
-//     effects =
-//         GenerateSitRepMessage
-//             message = "There are defenseless natives at %planet%!  Go invade them with [[metertype METER_TROOPS]]!"
-//             label = "Custom_4"
-//             NoStringtableLookup
-//             icon = "icons/meter/troops.png"
-//             parameters = [
-//                 tag = "planet" data = Target.ID
-//             ]
-//             empire = Source.Owner
+EffectsGroup
+    scope = And [
+        Planet
+        Species
+        UnOwned
+        MaxDefense high = 0
+        ContainedBy And [
+            System
+            Not Contains Monster
+        ]
+        VisibleToEmpire empire = Source.Owner
+    ]
+    activation = Source
+    effects =
+        GenerateSitRepMessage
+            message = "There are defenseless natives at %planet%!  Go invade them with <encyclopedia TROOP_TITLE>Troops</encyclopedia>!"
+            label = "Custom_4"
+            NoStringtableLookup
+            icon = "icons/meter/troops.png"
+            parameters = [
+                tag = "planet" data = Target.ID
+            ]
+            empire = Source.Owner
 
 //#####     RANDOM BEGINNER HINTS     #####//
 
