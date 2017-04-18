@@ -116,8 +116,8 @@ class TechGroup1(TechGroup):
         ])
         self.weapon.extend([
             "SHP_WEAPON_1_2",
-            "SHP_FIGHTERS_1",
             "SHP_WEAPON_1_3",
+            "SHP_FIGHTERS_1",
             "SHP_WEAPON_1_4",
         ])
         self.defense.extend([
@@ -185,16 +185,30 @@ class TechGroup1SparseB(TechGroup1):
         self.enqueue(
             self.economy,
             self.economy,
-            "PRO_FUSION_GEN",
+            self.weapon,
+            "SHP_ORG_HULL",
+            self.weapon,
+            "PRO_NANOTECH_PROD",
+            "GRO_GENETIC_ENG",
+            "PRO_SENTIENT_AUTOMATION",
+            "GRO_GENETIC_MED",
+            "DEF_DEFENSE_NET_1",
             "GRO_SYMBIOTIC_BIO",
-            self.weapon,
-            self.weapon,
-            self.weapon,
-            "PRO_ORBITAL_GEN",
-            self.hull,
+            "PRO_MICROGRAV_MAN",
+            "PRO_EXOBOTS",
+            "GRO_XENO_GENETICS",
+            "SHP_ASTEROID_HULLS",
+            "PRO_FUSION_GEN",
+            "SHP_WEAPON_2_1",
             "SHP_ZORTRIUM_PLATE",
-            "SHP_SPACE_FLUX_DRIVE"
+            self.hull,
+            "LRN_FORCE_FIELD",
+            "SHP_WEAPON_2_2",
+            "PRO_ORBITAL_GEN",
+            "SPY_DETECT_2",
+            "SHP_SPACE_FLUX_DRIVE",
         )
+        self.weapon = []
 
 
 class TechGroup1SparseC(TechGroup1):
@@ -203,13 +217,13 @@ class TechGroup1SparseC(TechGroup1):
         self.enqueue(
             self.economy,
             self.economy,
+            "PRO_NANOTECH_PROD",
+            "PRO_SENTIENT_AUTOMATION",
             self.weapon,
             "SHP_ORG_HULL",
-            self.weapon,
-            "PRO_NANOTECH_PROD",
             "GRO_GENETIC_ENG",
-            "PRO_SENTIENT_AUTOMATION",
             "GRO_GENETIC_MED",
+            "DEF_DEFENSE_NET_1",
             "GRO_SYMBIOTIC_BIO",
             "PRO_MICROGRAV_MAN",
             "PRO_EXOBOTS",
@@ -675,13 +689,13 @@ def sparse_galaxy_techs(index):
         result += TechGroup4().get_techs()
         result += TechGroup5().get_techs()  #
     elif index == 3:
-        result = TechGroup1SparseC().get_techs()  # early org_hull
+        result = TechGroup1SparseB().get_techs()  # early org_hull
         result += TechGroup2SparseB().get_techs()
         result += TechGroup3A().get_techs()
         result += TechGroup4().get_techs()
         result += TechGroup5().get_techs()  #
     elif index == 4:
-        result = TechGroup1SparseC().get_techs()  # early _lrn_artif_minds
+        result = TechGroup1SparseC().get_techs()  # early pro_sent_auto
         result += TechGroup2SparseB().get_techs()
         result += TechGroup3B().get_techs()  # faster plasma weaps
         result += TechGroup4().get_techs()
