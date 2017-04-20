@@ -512,6 +512,7 @@ def set_planet_industry_and_research_foci(focus_manager, priority_ratio):
     # cumulative all industry focus
     cumulative_pp, cumulative_rp = 0, 0
 
+    print "%d planets with currently baked focii" % len(focus_manager.baked_planet_info)
     # Handle presets which only have possible output for preset focus
     for pid, info in focus_manager.baked_planet_info.items():
         future_pp, future_rp = info.possible_output[info.future_focus]
@@ -520,6 +521,7 @@ def set_planet_industry_and_research_foci(focus_manager, priority_ratio):
         cumulative_pp += future_pp
         cumulative_rp += future_rp
 
+    print "%d planets with currently unbaked focii, pre-adjustment"%len(focus_manager.raw_planet_info)
     # tally max Industry
     for pid, info in focus_manager.raw_planet_info.items():
         i_pp, i_rp = info.possible_output[INDUSTRY]
@@ -531,7 +533,9 @@ def set_planet_industry_and_research_foci(focus_manager, priority_ratio):
     # smallest possible ratio of research to industry with an all industry focus
     maxi_ratio = cumulative_rp / max(0.01, cumulative_pp)
 
+    foci_set_by_round = {}
     for adj_round in [2, 3, 4]:
+        foci_set_by_round[adj_round] = 0
         for pid, info in focus_manager.raw_planet_info.items():
             ii, tr = info.possible_output[INDUSTRY]
             ri, rr = info.possible_output[RESEARCH]
@@ -545,6 +549,7 @@ def set_planet_industry_and_research_foci(focus_manager, priority_ratio):
                     target_pp += ri
                     target_rp += rr
                     focus_manager.bake_future_focus(pid, RESEARCH, False)
+                    foci_set_by_round[adj_round] += 1
                 continue
             if adj_round == 3:  # take research at planets where can do reasonable balance
                 if has_force or foAI.foAIstate.character.may_dither_focus_to_gain_research() or (target_rp >= priority_ratio * cumulative_pp):
@@ -557,16 +562,23 @@ def set_planet_industry_and_research_foci(focus_manager, priority_ratio):
                 if (ci > ii + 8) or (((rr > ii) or ((rr - cr) >= 1 + 2 * research_penalty)) and ((rr - tr) >= 3) and ((cr - tr) >= 0.7 * ((ii - ci) * (1 + 0.1 * research_penalty)))):
                     target_pp += ci - 1 - research_penalty
                     target_rp += cr + 1
+                    foci_set_by_round[adj_round] += 1
                     focus_manager.bake_future_focus(pid, RESEARCH, False)
                 continue
             if adj_round == 4:  # assume default IFocus
                 target_pp += ii  # icurTargets initially calculated by Industry focus, which will be our default focus
                 target_rp += tr
+                foci_set_by_round[adj_round] += 1
                 ratios.append((factor, pid, info))
+    print "Number of Planets grouped by adjustment round: ", foci_set_by_round
 
     ratios.sort()
-    printed_header = False
+    printed_separator = False
     got_algo = tech_is_complete("LRN_ALGO_ELEGANCE")
+    print "Making final %d focus choices by research cost ratio" % foci_set_by_round.get(4, 0)
+    print "%34s|%20s|%15s |%15s|%15s |%15s |%15s"%(
+            "                      Planet ", " current RP/PP ", " current target RP/PP ", "current Focus ",
+            "  consideredFocus ", " considered target RP/PP ", "considered RP-PP EQF")
     for ratio, pid, pinfo in ratios:
         if priority_ratio < (target_rp / (target_pp + 0.0001)):  # we have enough RP
             if ratio < 1.1 and foAI.foAIstate.character.may_research_heavily():  # but wait, RP is still super cheap relative to PP, maybe will take more RP
@@ -578,21 +590,26 @@ def set_planet_industry_and_research_foci(focus_manager, priority_ratio):
         ri, rr = info.possible_output[RESEARCH]
         # if focus_manager.current_focus[pid] == MFocus:
         # ii = max( ii, focus_manager.possible_output[MFocus][0] )
-        if ((ratio > 2.0 and target_pp < 15 and got_algo) or
-            (ratio > 2.5 and target_pp < 25 and ii > 5 and got_algo) or
-            (ratio > 3.0 and target_pp < 40 and ii > 5 and got_algo) or
-            (ratio > 4.0 and target_pp < 100 and ii > 10) or
-            ((target_rp + rr - tr) / max(0.001, target_pp - ii + ri) > 2 * priority_ratio)):  # we already have algo elegance and more RP would be too expensive, or overkill
-            if not printed_header:
-                printed_header = True
+        old_focus = info.current_focus
+        c_pp, c_rp = info.current_output
+        ot_pp, ot_rp = info.possible_output[old_focus]
+        nt_pp, nt_rp = info.possible_output[RESEARCH]
+        assessments =  ((ratio > 2.0 and target_pp < 15 and got_algo),
+            (ratio > 2.5 and target_pp < 25 and ii > 5 and got_algo),
+            (ratio > 3.0 and target_pp < 40 and ii > 5 and got_algo),
+            (ratio > 4.0 and target_pp < 100 and ii > 10),
+            ((target_rp + rr - tr) / max(0.001, target_pp - ii + ri) > 2 * priority_ratio))
+        print "rp ratio assessments: ", assessments
+        if any(assessments):  # we already have algo elegance and more RP would be too expensive, or overkill
+            if not printed_separator:
+                printed_separator = True
                 print "Rejecting further Research Focus choices as too expensive:"
-                print "%34s|%20s|%15s |%15s|%15s |%15s |%15s" % ("                      Planet ", " current RP/PP ", " current target RP/PP ", "current Focus ", "  rejectedFocus ", " rejected target RP/PP ", "rejected RP-PP EQF")
-            old_focus = info.current_focus
-            c_pp, c_rp = info.current_output
-            ot_pp, ot_rp = info.possible_output[old_focus]
-            nt_pp, nt_rp = info.possible_output[RESEARCH]
             print "pID (%3d) %22s | c: %5.1f / %5.1f | cT: %5.1f / %5.1f |  cF: %8s | nF: %8s | cT: %5.1f / %5.1f | %.2f" % (pid, info.planet.name, c_rp, c_pp, ot_rp, ot_pp, _focus_names.get(old_focus, 'unknown'), _focus_names[RESEARCH], nt_rp, nt_pp, ratio)
             continue  # RP is getting too expensive, but might be willing to still allocate from a planet with less PP to lose
+        print "pID (%3d) %22s | c: %5.1f / %5.1f | cT: %5.1f / %5.1f |  cF: %8s | nF: %8s | cT: %5.1f / %5.1f | %.2f"%(
+            pid, info.planet.name, c_rp, c_pp, ot_rp, ot_pp, _focus_names.get(old_focus, 'unknown'), _focus_names[RESEARCH],
+            nt_rp, nt_pp, ratio)
+        print "target_rp %.1f, (rr - tr) %.1f | target_pp %.1f (ii - ri) %.1f | ratio %.1f" % (target_rp, (rr - tr), target_pp, (ii - ri), (target_rp + rr - tr) / max(0.001, target_pp - ii + ri))
         # if focus_manager.planet_map[pid].currentMeterValue(fo.meterType.targetPopulation) >0: #only set to research if pop won't die out
         focus_manager.bake_future_focus(pid, RESEARCH, False)
         target_rp += (rr - tr)
