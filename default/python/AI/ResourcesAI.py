@@ -579,7 +579,7 @@ def set_planet_industry_and_research_foci(focus_manager, priority_ratio):
     print "%34s|%20s|%15s |%15s|%15s |%15s |%15s"%(
             "                      Planet ", " current RP/PP ", " current target RP/PP ", "current Focus ",
             "  consideredFocus ", " considered target RP/PP ", "considered RP-PP EQF")
-    for ratio, pid, pinfo in ratios:
+    for ratio, pid, info in ratios:
         if priority_ratio < (target_rp / (target_pp + 0.0001)):  # we have enough RP
             if ratio < 1.1 and foAI.foAIstate.character.may_research_heavily():  # but wait, RP is still super cheap relative to PP, maybe will take more RP
                 if priority_ratio < 1.5 * (target_rp / (target_pp + 0.0001)):  # yeah, really a glut of RP, stop taking RP
