@@ -19,7 +19,7 @@ from turn_state import state
 
 MinThreat = 10  # the minimum threat level that will be ascribed to an unknown threat capable of killing scouts
 _military_allocations = []
-_verbose_mil_reporting = False
+_verbose_mil_reporting = True
 _best_ship_rating_cache = {}  # indexed by turn, value is rating of that turn
 
 
@@ -350,6 +350,20 @@ class Allocator(object):
         """
         if ratio < self._military_reset_ratio and self._allocation_helper.try_reset:
             raise ReleaseMilitaryException
+
+    def _reporting_header(self):
+        return None
+
+    def _reporting_row(self):
+        return None
+
+    @property
+    def get_reporting_header(self):
+        return self._reporting_header()
+
+    @property
+    def get_reporting_row(self):
+        return self._reporting_row()
 
     @property
     def nearby_empire_count(self):
