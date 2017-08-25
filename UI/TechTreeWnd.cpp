@@ -1824,9 +1824,7 @@ void TechTreeWnd::TechListBox::Update() {
 }
 
 void TechTreeWnd::TechListBox::Populate() {
-    // abort of not visible to see results
-    if (!Visible())
-        return;
+    // let it process even if not currently visible, as may happen during turn-start update/reset
 
     DebugLogger() << "Tech List Box Populating";
 
@@ -2106,7 +2104,7 @@ std::set<TechStatus> TechTreeWnd::GetTechStatusesShown() const
 
 void TechTreeWnd::Update() {
     m_layout_panel->Update();
-    m_tech_list->Update();
+    m_tech_list->Reset();
 }
 
 void TechTreeWnd::Clear() {
