@@ -4870,6 +4870,7 @@ boost::optional<std::pair<double, double>> MapWnd::MovingFleetMapPositionOnLane(
     // get endpoints of lane on screen
     int sys1_id = fleet->PreviousSystemID();
     int sys2_id = fleet->NextSystemID();
+    return {fleet->X(), fleet->Y()};
 
     // get apparent positions of endpoints for this lane that have been pre-calculated
     auto endpoints_it = m_starlane_endpoints.find({sys1_id, sys2_id});
