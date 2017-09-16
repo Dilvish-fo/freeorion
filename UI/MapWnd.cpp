@@ -4905,7 +4905,7 @@ namespace {
         if (fleet
             && !fleet->Empty()
             && (known_destroyed_objects.count(object_id) == 0)
-            && (stale_object_info.count(object_id) == 0))
+            && (stale_object_info.count(object_id) != -2))
         {
             return fleet;
         }
