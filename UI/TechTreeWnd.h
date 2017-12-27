@@ -72,6 +72,7 @@ public:
 
     mutable TechSignalType          TechSelectedSignal;
     mutable QueueAddTechsSignalType AddTechsToQueueSignal;
+    void 	AddMyTechs();
 
 private:
     class TechTreeControls;

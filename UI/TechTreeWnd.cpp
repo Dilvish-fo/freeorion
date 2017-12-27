@@ -2265,6 +2265,12 @@ void TechTreeWnd::ShowTreeView() {
 }
 
 void TechTreeWnd::ShowListView() {
+    const Empire* empire = GetEmpire(HumanClientApp::GetApp()->EmpireID());
+    if (empire) {
+      if (empire->GetResearchQueue().empty()) {
+	AddMyTechs();
+      }
+    }
     m_tech_list->Reset();
     AttachChild(m_tech_list);
     MoveChildDown(m_tech_list);
@@ -2367,4 +2373,157 @@ void TechTreeWnd::TechPediaDisplaySlot(const std::string& tech_name) {
     SetEncyclopediaTech(tech_name);
     if (!PediaVisible())
         ShowPedia();
+}
+void TechTreeWnd::AddMyTechs() {
+    static std::string techs[] = {
+        "LRN_PHYS_BRAIN",
+        "LRN_ALGO_ELEGANCE",
+        "GRO_PLANET_ECOL",
+        "GRO_SUBTER_HAB",
+        "LRN_ARTIF_MINDS",
+        "SHP_WEAPON_1_2",
+        "SHP_WEAPON_1_3",
+        "DEF_GARRISON_1",
+        "SHP_DOMESTIC_MONSTER",
+        "SHP_ORG_HULL",
+        "CON_ORBITAL_CON",
+        "DEF_DEFENSE_NET_1",
+        "PRO_ROBOTIC_PROD",
+        "PRO_FUSION_GEN",
+        "PRO_ORBITAL_GEN",
+        "GRO_GENETIC_ENG",
+        "SHP_MULTICELL_CAST",
+        "PRO_SENTIENT_AUTOMATION",
+        "PRO_EXOBOTS",
+        "SHP_WEAPON_2_1",
+        "SHP_ZORTRIUM_PLATE",
+        "LRN_FORCE_FIELD",
+        "GRO_SYMBIOTIC_BIO",
+        "GRO_GENETIC_MED",
+        "GRO_XENO_GENETICS",
+        "PRO_MICROGRAV_MAN",
+        "SHP_WEAPON_1_4",
+        "SHP_FIGHTERS_1",
+        "SHP_SPACE_FLUX_DRIVE",
+        "SPY_DETECT_2",
+        "SHP_WEAPON_2_2",
+        "SHP_FIGHTERS_2",
+        "SHP_WEAPON_2_3",
+        "DEF_DEFENSE_NET_2",
+        "DEF_DEFENSE_NET_REGEN_1",
+        "SHP_WEAPON_2_4",
+        "DEF_GARRISON_2",
+        "PRO_INDUSTRY_CENTER_I",
+        "SHP_IMPROVED_ENGINE_COUPLINGS",
+        "SHP_BASIC_DAM_CONT",
+        "LRN_TRANSLING_THT",
+        "SHP_ASTEROID_HULLS",
+        "SHP_HEAVY_AST_HULL",
+        "DEF_PLAN_BARRIER_SHLD_1",
+        "SHP_DEFLECTOR_SHIELD",
+        "LRN_QUANT_NET",
+        "PRO_INDUSTRY_CENTER_II",
+        "PRO_SOL_ORB_GEN",
+        "SHP_INTSTEL_LOG",
+        "SHP_FLEET_REPAIR",
+        "SHP_WEAPON_3_1",
+        "SHP_WEAPON_3_2",
+        "SHP_FIGHTERS_3",
+        "SHP_WEAPON_3_3",
+        "DEF_DEFENSE_NET_REGEN_2",
+        "SHP_WEAPON_3_4",
+        "GRO_XENO_HYBRIDS",
+        "SHP_DEUTERIUM_TANK",
+        "DEF_PLAN_BARRIER_SHLD_2",
+        "DEF_GARRISON_3",
+        "DEF_DEFENSE_NET_3",
+        "SPY_DETECT_3",
+        "GRO_LIFECYCLE_MAN",
+        "SHP_ENDOCRINE_SYSTEMS",
+        "SHP_CONT_BIOADAPT",
+        "SHP_ASTEROID_REFORM",
+        "CON_FRC_ENRG_STRC",
+        "CON_METRO_INFRA",
+        "SHP_REINFORCED_HULL",
+        "PRO_IMPERIAL_STOCKPILE_3",
+        "CON_NDIM_STRC",
+        "LRN_GRAVITONICS",
+        "DEF_PLAN_BARRIER_SHLD_3",
+        "CON_CONTGRAV_ARCH",
+        "LRN_XENOARCH",
+        "DEF_SYST_DEF_MINE_1",
+        "SHP_CONT_SYMB",
+        "SHP_MONOCELL_EXP",
+        "SHP_BIOADAPTIVE_SPEC",
+        "CON_ORBITAL_HAB",
+        "LRN_TIME_MECH",
+        "LRN_STELLAR_TOMOGRAPHY",
+        "LRN_ENCLAVE_VOID",
+        "LRN_UNIF_CONC",
+        "SHP_ADV_DAM_CONT",
+        "SHP_MONOMOLEC_LATTICE",
+        "SHP_DIAMOND_PLATE",
+        "PRO_SINGULAR_GEN",
+        "SHP_PLASMA_SHIELD",
+        "SHP_SENT_HULL",
+        "SHP_XENTRONIUM_PLATE",
+        "GRO_CYBORG",
+        "GRO_ENERGY_META",
+        "SPY_DETECT_4",
+        "SHP_WEAPON_4_1",
+        "SHP_WEAPON_4_2",
+        "SHP_FIGHTERS_4",
+        "LRN_PSY_DOM",
+        "SHP_WEAPON_4_3",
+        "LRN_DISTRIB_THOUGHT",
+        "PRO_NEUTRONIUM_EXTRACTION",
+        "SHP_ASTEROID_HULLS",
+        "GRO_TERRAFORM",
+        "GRO_GENETIC_MED",
+        "SPY_STEALTH_1",
+        "CON_CONC_CAMP",
+        "PRO_INDUSTRY_CENTER_III",
+        "SPY_STEALTH_2",
+        "DEF_SYST_DEF_MINE_2",
+        "DEF_SYST_DEF_MINE_3",
+        "SPY_STEALTH_3",
+        "SPY_DETECT_5",
+        "SHP_WEAPON_4_4",
+        "LRN_ART_BLACK_HOLE",
+        "SHP_BLACKSHIELD",
+        "DEF_GARRISON_4",
+        "SPY_STEALTH_4",
+        "SHP_ENRG_BOUND_MAN",
+        "DEF_PLAN_BARRIER_SHLD_4",
+        "DEF_PLAN_BARRIER_SHLD_5",
+        "GRO_GAIA_TRANS",
+        "GRO_ENERGY_META",
+        "CON_ART_PLANET",
+        "SHP_SOLAR_CONT",
+    };
+    int numTechs = (sizeof(techs) / sizeof(std::string));
+    std::vector<std::string>     techVec(techs,techs + numTechs);
+    if (techVec[numTechs-3] != "GRO_ENERGY_META")
+        ErrorLogger() << "Error: LoadMyTechs seems to have an incorrect length for my Techs array...";
+    TechManager& manager = GetTechManager();
+    std::vector<std::string> full_tech_vec;
+    std::set<std::string> full_tech_set;
+    int empireID = HumanClientApp::GetApp()->EmpireID();
+    std::vector<std::string> tech_vec2;
+    for (std::vector<std::string>::iterator techIt = techVec.begin(); techIt != techVec.end(); ++techIt) {
+        std::vector<std::string> tech_vec = manager.RecursivePrereqs(*techIt, empireID);
+        tech_vec.push_back(*techIt);
+        for (std::vector< std::string >::iterator tech_it2 = tech_vec.begin(); tech_it2 != tech_vec.end(); tech_it2++) {
+            if (full_tech_set.find(*tech_it2) == full_tech_set.end()) {
+                full_tech_set.insert(*tech_it2);
+                tech_vec2.push_back(*tech_it2);
+            }
+        }
+        if (tech_vec2.size() >=20) {
+            AddTechsToQueueSignal(tech_vec2, -1);
+            tech_vec2.clear();
+        }
+    };
+    if (!tech_vec2.empty())
+        AddTechsToQueueSignal(tech_vec2, -1);
 }
