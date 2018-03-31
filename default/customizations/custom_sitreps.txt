@@ -104,7 +104,56 @@ EffectsGroup
             ]
             empire = Source.Owner
 
+			
+//***** _Armed_ Inbound enemy warning *****//
+EffectsGroup
+    scope = And [
+        System
+        // The following assets need protection
+        Contains And [
+            OwnedBy empire = Source.Owner
+            Or [
+                Planet
+                Ship
+            ]
+        ]
+        // Dont warn about system where there are already armed enemies this turn
+        Not Contains And [
+            Ship
+            Or [
+                OwnedBy affiliation = EnemyOf empire = Source.Owner
+                UnOwned
+            ]
+            VisibleToEmpire empire = Source.Owner
+            Armed
+        ]
+        // Only warn if enemies are incoming
+        WithinDistance distance = 120 condition = And [
+            Fleet
+            Not Stationary
+            Or [
+                OwnedBy affiliation = EnemyOf empire = Source.Owner
+                UnOwned
+            ]
+            VisibleToEmpire empire = Source.Owner
+            Turn low = [[ETA_NEXT_TURN]] high = [[ETA_NEXT_TURN]]
+            (RootCandidate.ID = LocalCandidate.NextSystemID)
+            Contains Armed
+        ]
+    ]
+    activation = Source
+    priority = [[END_CLEANUP_PRIORITY]]
+    effects =
+        GenerateSitRepMessage
+            message = "SITREP_SYSTEM_GOT_INCOMING_WARNING"
+            label = "SITREP_SYSTEM_GOT_INCOMING_WARNING_LABEL"
+            icon = "icons/meter/ammo.png"
+            parameters = [
+                tag = "system"  data = Target.ID
+            ]
+            empire = Source.Owner
 
+//***** _Unarmed_ Inbound enemy warning *****//
 EffectsGroup
     scope = And [
         System
@@ -136,14 +185,16 @@ EffectsGroup
             VisibleToEmpire empire = Source.Owner
             Turn low = [[ETA_NEXT_TURN]] high = [[ETA_NEXT_TURN]]
             (RootCandidate.ID = LocalCandidate.NextSystemID)
+            Not Contains Armed
         ]
     ]
     activation = Source
     priority = [[END_CLEANUP_PRIORITY]]
     effects =
         GenerateSitRepMessage
-            message = "SITREP_SYSTEM_GOT_INCOMING_WARNING"
-            label = "SITREP_SYSTEM_GOT_INCOMING_WARNING_LABEL"
+            message = "At %system%: Next turn enemy spies arrive!"
+            label = "Inbound Spies"
+			NoStringtableLookup
             icon = "icons/meter/ammo.png"
             parameters = [
                 tag = "system"  data = Target.ID
