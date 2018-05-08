@@ -138,6 +138,7 @@ public:
      * has in the start system at least one fleet that meets the requirements to preserve the lane (which
      * is determined in Empire::UpdateSupplyUnobstructedSystems(). */
     const bool                              PreservedLaneTravel(int start_system_id, int dest_system_id) const;
+    const std::map<int, std::set<int>>      PreservedLanes() const { return m_preserved_system_exit_lanes; }
 
     const std::set<int>&                    ExploredSystems() const;    ///< returns set of ids of systems that this empire has explored
     const std::map<int, std::set<int>>      KnownStarlanes() const;     ///< returns map from system id (start) to set of system ids (endpoints) of all starlanes known to this empire

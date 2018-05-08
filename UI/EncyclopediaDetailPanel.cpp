@@ -1952,8 +1952,27 @@ namespace {
                 building_type_name = UserString(entry.first);
             detailed_description += "\n" + building_type_name + " : " + num_str;
         }
-
-        detailed_description += "\n";
+        
+        // blockaded systems
+        //std::set<int>                   m_supply_unobstructed_systems;  ///< ids of system that don't block supply from flowing
+        //std::map<int, std::set<int>>    m_available_system_exit_lanes;  ///< for each system known to this empire, the set of available/non-blockaded exit lanes for fleet travel
+        detailed_description += "\n\nUnobstructed systems: ";
+        std::stringstream stream;
+        for (auto sid: empire->SupplyUnobstructedSystems())
+            stream << sid << ", ";
+        detailed_description += stream.str() + "\n\n";
+        
+        detailed_description += "\n\nPreserved starlanes:\n";
+        stream.str("");
+        stream.clear();
+        for (auto syslanes: empire->PreservedLanes()) {
+            stream << syslanes.first << ":  ";
+            for (auto sid: syslanes.second)
+                stream << sid << ",  ";
+            stream << "\n";
+        }
+        detailed_description += stream.str() + "\n\n";
+        
     }
 
     void RefreshDetailPanelSpeciesTag(      const std::string& item_type, const std::string& item_name,
