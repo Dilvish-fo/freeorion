@@ -120,8 +120,20 @@ def get_fleets_for_mission(target_stats, min_stats, cur_stats, starting_system,
                 fleet_pool_set.remove(fleet_id)
                 continue
             # try splitting fleet
-            if len(list(fleet.shipIDs)) > 1:
+            if len(list(fleet.shipIDs)) > 1 and fleet.systemID != INVALID_ID:
                 new_fleets = split_fleet(fleet_id)
+                if fleet_id in new_fleets:
+                    err_message = ("splitting of fleet ID %d having %d ships %s unexpectedly returned original fleetID "
+                                   "in set of new %d fleets.  The new fleets are:" %
+                                   (fleet_id, len(fleet.shipIDs), [_id for _id in fleet.shipIDs], len(new_fleets)))
+                    for new_fleet_id in new_fleets:
+                        this_new_fleet = universe.getFleet(new_fleet_id)
+                        if not this_new_fleet:
+                            error("Could not retrieve fleet ID %d, which was just returned from the splitting of"
+                                  "fleet %d." % (new_fleet_id, fleet_id))
+                        err_message += ("\n" + "new fleet %d containing ship(s) %s" %
+                                        (new_fleet_id, [_id for _id in this_new_fleet.shipIDs]))
+                    error(err_message, exc_info=True)
                 fleet_pool_set.update(new_fleets)
                 fleets_here.extend(new_fleets)
             # check species for colonization missions
