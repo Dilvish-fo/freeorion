@@ -124,10 +124,7 @@ class TechGroup1(TechGroup):
             "DEF_GARRISON_1",
             "DEF_DEFENSE_NET_1",
         ])
-        self.hull.extend([
-            "SHP_MIL_ROBO_CONT",
-        ])
-        # always start with the same first 8 techs; leaves 2 econ, 3 weap, 1 hull
+        # always start with the same first 8 techs; leaves 2 econ, 3 weap
         self.enqueue(
             self.economy,
             self.economy,
@@ -143,6 +140,10 @@ class TechGroup1(TechGroup):
 class TechGroup1a(TechGroup1):
     def __init__(self):
         super(TechGroup1a, self).__init__()
+        self.hull.extend([
+            "SHP_MIL_ROBO_CONT",
+            "SHP_ORG_HULL",
+        ])
         self.enqueue(
             self.weapon,
             self.weapon,
@@ -156,6 +157,10 @@ class TechGroup1a(TechGroup1):
 class TechGroup1b(TechGroup1):
     def __init__(self):
         super(TechGroup1b, self).__init__()
+        self.hull.extend([
+            "SHP_ORG_HULL",
+            "SHP_MIL_ROBO_CONT",
+        ])
         self.enqueue(
             self.weapon,
             self.hull,
@@ -169,6 +174,10 @@ class TechGroup1b(TechGroup1):
 class TechGroup1SparseA(TechGroup1):
     def __init__(self):
         super(TechGroup1SparseA, self).__init__()
+        self.hull.extend([
+            "SHP_ORG_HULL",
+            "SHP_MIL_ROBO_CONT",
+        ])
         self.enqueue(
             self.economy,
             self.economy,
@@ -184,14 +193,18 @@ class TechGroup1SparseA(TechGroup1):
 class TechGroup1SparseB(TechGroup1):
     def __init__(self):
         super(TechGroup1SparseB, self).__init__()
+        self.hull.extend([
+            "SHP_ORG_HULL",
+            "SHP_MIL_ROBO_CONT",
+        ])
         self.enqueue(
             self.economy,
             self.economy,
             self.weapon,
-            "SHP_ORG_HULL",
+            self.hull,
+            "SHP_MULTICELL_CAST",
             self.weapon,
             "PRO_NANOTECH_PROD",
-            "GRO_GENETIC_ENG",
             "PRO_SENTIENT_AUTOMATION",
             "GRO_GENETIC_MED",
             "GRO_SYMBIOTIC_BIO",
@@ -215,14 +228,18 @@ class TechGroup1SparseB(TechGroup1):
 class TechGroup1SparseC(TechGroup1):
     def __init__(self):
         super(TechGroup1SparseC, self).__init__()
+        self.hull.extend([
+            "SHP_ORG_HULL",
+            "SHP_MIL_ROBO_CONT",
+        ])
         self.enqueue(
             self.economy,
             self.economy,
+            self.hull,
+            "SHP_MULTICELL_CAST",
             "PRO_NANOTECH_PROD",
             "PRO_SENTIENT_AUTOMATION",
             self.weapon,
-            "SHP_ORG_HULL",
-            "GRO_GENETIC_ENG",
             "GRO_GENETIC_MED",
             "GRO_SYMBIOTIC_BIO",
             "PRO_EXOBOTS",
@@ -364,7 +381,6 @@ class TechGroup3(TechGroup):
     def __init__(self):
         super(TechGroup3, self).__init__()
         self.hull.extend([
-            "SHP_ORG_HULL",
             "SHP_ASTEROID_REFORM",
             "SHP_HEAVY_AST_HULL",
             "SHP_CONTGRAV_MAINT",
@@ -468,6 +484,7 @@ class TechGroup3B(TechGroup3):
     def __init__(self):
         super(TechGroup3B, self).__init__()
         self.enqueue(
+            "SHP_MULTICELL_CAST",
             self.hull,
             self.economy,
             self.defense,
