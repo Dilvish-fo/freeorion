@@ -122,11 +122,12 @@ class TechGroup1(TechGroup):
         ])
         self.defense.extend([
             "DEF_GARRISON_1",
+            "DEF_DEFENSE_NET_1",
         ])
         self.hull.extend([
             "SHP_MIL_ROBO_CONT",
         ])
-        # always start with the same first 7 techs; leaves 2 econ, 3 weap, 1 hull
+        # always start with the same first 8 techs; leaves 2 econ, 3 weap, 1 hull
         self.enqueue(
             self.economy,
             self.economy,
@@ -134,6 +135,7 @@ class TechGroup1(TechGroup):
             self.economy,
             self.economy,
             self.weapon,
+            self.defense,
             self.defense,
         )
 
@@ -192,7 +194,6 @@ class TechGroup1SparseB(TechGroup1):
             "GRO_GENETIC_ENG",
             "PRO_SENTIENT_AUTOMATION",
             "GRO_GENETIC_MED",
-            "DEF_DEFENSE_NET_1",
             "GRO_SYMBIOTIC_BIO",
             "PRO_EXOBOTS",
             "PRO_MICROGRAV_MAN",
@@ -223,7 +224,6 @@ class TechGroup1SparseC(TechGroup1):
             "SHP_ORG_HULL",
             "GRO_GENETIC_ENG",
             "GRO_GENETIC_MED",
-            "DEF_DEFENSE_NET_1",
             "GRO_SYMBIOTIC_BIO",
             "PRO_EXOBOTS",
             "PRO_MICROGRAV_MAN",
@@ -258,7 +258,6 @@ class TechGroup2(TechGroup):
             "SHP_ZORTRIUM_PLATE",
         ])
         self.defense.extend([
-            "DEF_DEFENSE_NET_1",
             "SPY_DETECT_2",
             "DEF_GARRISON_2",
             "LRN_FORCE_FIELD",
@@ -283,7 +282,6 @@ class TechGroup2A(TechGroup2):
         self.enqueue(
             self.economy,
             self.armor,
-            self.defense,
             self.hull,
             self.economy,
             self.defense,
@@ -306,7 +304,6 @@ class TechGroup2B(TechGroup2):
             self.armor,
             self.hull,
             self.economy,
-            self.defense,
             self.weapon,
             self.weapon,
             self.economy,
@@ -329,7 +326,6 @@ class TechGroup2SparseA(TechGroup2):
             self.economy,
             self.economy,
             self.armor,
-            self.defense,
             self.economy,
             self.economy,
             self.defense,
@@ -352,7 +348,6 @@ class TechGroup2SparseB(TechGroup2):
             self.economy,
             self.economy,
             self.economy,
-            self.defense,
             self.defense,
             self.weapon,
             self.weapon,
