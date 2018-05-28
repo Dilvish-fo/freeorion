@@ -274,11 +274,6 @@ class TechGroup2(TechGroup):
         self.armor.extend([
             "SHP_ZORTRIUM_PLATE",
         ])
-        self.defense.extend([
-            "SPY_DETECT_2",
-            "DEF_GARRISON_2",
-            "LRN_FORCE_FIELD",
-        ])
         self.hull.extend([
             "SHP_SPACE_FLUX_DRIVE",
             # "SHP_ASTEROID_HULLS",  # should be handled by fast-forwarding when having ASteroids
@@ -296,13 +291,18 @@ class TechGroup2(TechGroup):
 class TechGroup2A(TechGroup2):
     def __init__(self):
         super(TechGroup2A, self).__init__()
+        self.defense.extend([
+            "SPY_DETECT_2",
+            "DEF_GARRISON_2",
+            "LRN_FORCE_FIELD",
+        ])
         self.enqueue(
             self.economy,
-            self.armor,
-            self.hull,
             self.economy,
             self.defense,
             self.defense,
+            self.armor,
+            self.hull,
             self.weapon,
             self.weapon,
             self.defense,
@@ -317,14 +317,19 @@ class TechGroup2A(TechGroup2):
 class TechGroup2B(TechGroup2):
     def __init__(self):
         super(TechGroup2B, self).__init__()
+        self.defense.extend([
+            "LRN_FORCE_FIELD",
+            "SPY_DETECT_2",
+            "DEF_GARRISON_2",
+        ])
         self.enqueue(
+            self.defense,
             self.armor,
             self.hull,
-            self.economy,
-            self.weapon,
             self.weapon,
             self.economy,
-            self.defense,
+            self.weapon,
+            self.economy,
             self.defense,
             self.defense,
             self.weapon,
