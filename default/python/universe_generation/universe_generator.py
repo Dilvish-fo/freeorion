@@ -11,7 +11,7 @@ from starnames import name_star_systems
 from galaxy import calc_star_system_positions
 from starsystems import name_planets, generate_systems
 from empires import compile_home_system_list, setup_empire
-from fields import generate_fields
+from universe_generation.fields import generate_fields
 from natives import generate_natives
 from monsters import generate_monsters
 from specials import distribute_specials

@@ -148,8 +148,13 @@ void PythonBase::AddToSysPath(const std::string dir) {
         return;
     }
     std::string script = "import sys\n"
-        "sys.path.append(r'" + dir + "')";
+        "sys.path.insert(0, r'" + dir + "')\n"
+        "new_path_string = str(sys.path)";
     exec(script.c_str(), m_namespace, m_namespace);
+    DebugLogger() << "modifying default Python module search path: " << Py_GetPath()
+                  << " | to add folder: " << dir;
+    std::string newpathstring = boost::python::extract<std::string>(m_namespace.get("new_path_string"));
+    DebugLogger() << "New Python module search path: " << newpathstring;
 }
 
 void PythonBase::SetErrorModule(object& module)
