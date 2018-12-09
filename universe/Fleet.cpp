@@ -1181,6 +1181,9 @@ bool Fleet::BlockadedAtSystem(int start_system_id, int dest_system_id) const {
         return false;
     }
     bool not_yet_in_system = SystemID() != start_system_id;
+    
+    if (!not_yet_in_system && m_arrival_starlane == dest_system_id)
+        return false;
 
     // find which empires have blockading aggressive armed ships in system;
     // fleets that just arrived do not blockade by themselves, but may
